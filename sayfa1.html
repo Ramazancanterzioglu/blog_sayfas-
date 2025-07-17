@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesyonel Finansal Terimler Rehberi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #8e44ad;
+            --bg-color: #ecf0f1;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --text-muted: #7f8c8d;
+            --shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ecf0f1;
+            --text-muted: #bdc3c7;
+            --shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: moveGrid 20s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(10px, 10px); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .header-stat {
+            text-align: center;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .header-stat .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .header-stat .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            font-size: 1.5rem;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        [data-theme="dark"] .section-title {
+            color: var(--text-color);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover .card-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        /* Different color schemes for different categories */
+        .sirket-category .card-icon { color: var(--success-color); }
+        .muhasebe-category .card-icon { color: var(--secondary-color); }
+        .vergi-category .card-icon { color: var(--warning-color); }
+        .islem-category .card-icon { color: var(--accent-color); }
+        .kontrol-category .card-icon { color: var(--info-color); }
+
+        .card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .card h3 {
+            color: var(--text-color);
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .card-details {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary-color);
+            margin-top: 1rem;
+        }
+
+        .card-details strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        [data-theme="dark"] .card-details strong {
+            color: var(--text-color);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--secondary-color);
+            border-radius: 4px;
+            transition: width 2s ease;
+            animation: progressFill 2s ease forwards;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(52, 152, 219, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .floating-icon:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 2s; }
+        .floating-icon:nth-child(4) { bottom: 10%; right: 10%; animation-delay: 3s; }
+        .floating-icon:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+        .floating-icon:nth-child(6) { top: 60%; right: 5%; animation-delay: 5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes progressFill {
+            from { width: 0%; }
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: var(--gradient);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        .category-section {
+            margin-bottom: 5rem;
+        }
+
+        .category-header {
+            background: var(--gradient-2);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .category-header h2 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cta-section {
+            background: var(--gradient-3);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            border-radius: 20px;
+            margin-top: 4rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .cta-button {
+            background: white;
+            color: var(--primary-color);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .header p { font-size: 1rem; }
+            .header-stats { gap: 1.5rem; }
+            .container { padding: 2rem 1rem; }
+            .cards-grid { 
+                grid-template-columns: 1fr; 
+                gap: 1.5rem; 
+            }
+            .card { padding: 2rem; }
+            .section-title { font-size: 2rem; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+        }
+
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-indicator"></div>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <div class="floating-elements">
+        <i class="fas fa-chart-line floating-icon" style="font-size: 3rem;"></i>
+        <i class="fas fa-dollar-sign floating-icon" style="font-size: 2.5rem;"></i>
+        <i class="fas fa-coins floating-icon" style="font-size: 2rem;"></i>
+        <i class="fas fa-credit-card floating-icon" style="font-size: 2.8rem;"></i>
+        <i class="fas fa-university floating-icon" style="font-size: 2.2rem;"></i>
+        <i class="fas fa-calculator floating-icon" style="font-size: 2.6rem;"></i>
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-university"></i> Profesyonel Finansal Terimler Rehberi</h1>
+            <p>İş dünyasında başarılı olmak için bilmeniz gereken kapsamlı finansal kavramlar ve muhasebe terimleri</p>
+            
+            <div class="header-stats">
+                <div class="header-stat">
+                    <span class="number" data-target="16">0</span>
+                    <span class="label">Finansal Terim</span>
+                </div>
+                <div class="header-stat">
+                    <span class="number" data-target="5">0</span>
+                    <span class="label">Kategori</span>
+                </div>
+                <div class="header-stat">
+                    <span class="number" data-target="2500">0</span>
+                    <span class="label">Aktif Kullanıcı</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Şirket Türleri Kategorisi -->
+        <div class="category-section sirket-category">
+            <div class="category-header">
+                <h2><i class="fas fa-building"></i> Şirket Türleri</h2>
+                <p>Farklı şirket yapıları ve özellikleri</p>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-handshake card-icon"></i>
+                    <h3>Adi Şirket</h3>
+                    <p>İki veya daha fazla kişinin ortak amaçla kurduğu, basit ortaklık türü.</p>
+                    <div class="card-details">
+                        <strong>Temel Özellikler:</strong><br>
+                        • Sözleşmeyle kurulur<br>
+                        • Ortaklar sınırsız sorumlu<br>
+                        • Tüzel kişiliği yoktur<br>
+                        • En basit ortaklık türü
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    <h3>Anonim Şirket</h3>
+                    <p>Ortakların payları kadar sorumlu olduğu, menkul kıymet çıkarabilen büyük sermayeli şirket türü.</p>
+                    <div class="card-details">
+                        <strong>Avantajları:</strong><br>
+                        • Sınırlı sorumluluk<br>
+                        • Hisse senedi çıkarabilir<br>
+                        • Halka açılabilir<br>
+                        • Profesyonel yönetim
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 95%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-users card-icon"></i>
+                    <h3>Halka Açık Şirket</h3>
+                    <p>Hisse senetleri borsada işlem gören, kamuya açık ortaklık yapısı.</p>
+                    <div class="card-details">
+                        <strong>Özel Durumlar:</strong><br>
+                        • Borsa kotasyonu<br>
+                        • Şeffaflık zorunluluğu<br>
+                        • SPK denetimi<br>
+                        • Yatırımcı ilişkileri
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Muhasebe Kavramları -->
+        <div class="category-section muhasebe-category">
+            <div class="category-header">
+                <h2><i class="fas fa-calculator"></i> Muhasebe Kavramları</h2>
+                <p>Temel muhasebe terimleri ve uygulamaları</p>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-chart-area card-icon"></i>
+                    <h3>Amortisman</h3>
+                    <p>Kullanılan varlıkların yıpranma ve eskime nedeniyle değer kaybının parasal karşılığı.</p>
+                    <div class="card-details">
+                        <strong>Amortisman Yöntemleri:</strong><br>
+                        • Normal amortisman<br>
+                        • Hızlandırılmış amortisman<br>
+                        • Azalan bakiyeler usulü<br>
+                        • Doğrusal amortisman
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 82%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-file-alt card-icon"></i>
+                    <h3>Beyanname</h3>
+                    <p>Hukuki bir varlığın resmi makamlara bildirildiği yazılı belge.</p>
+                    <div class="card-details">
+                        <strong>Beyanname Türleri:</strong><br>
+                        • Gelir vergisi beyannamesi<br>
+                        • Kurumlar vergisi beyannamesi<br>
+                        • KDV beyannamesi<br>
+                        • Muhtasar beyanname
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-clipboard-list card-icon"></i>
+                    <h3>Bordro</h3>
+                    <p>Her işçi için düzenlenen, maaş ve kesintileri gösteren detaylı belge.</p>
+                    <div class="card-details">
+                        <strong>Bordro İçeriği:</strong><br>
+                        • Brüt maaş<br>
+                        • SGK kesintileri<br>
+                        • Gelir vergisi<br>
+                        • Net ödeme tutarı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-dollar-sign card-icon"></i>
+                    <h3>Hasılat</h3>
+                    <p>İşletmenin satış faaliyetlerinden elde ettiği toplam gelir miktarı.</p>
+                    <div class="card-details">
+                        <strong>Hasılat Türleri:</strong><br>
+                        • Satış hasılatı<br>
+                        • Hizmet hasılatı<br>
+                        • Faiz hasılatı<br>
+                        • Kira hasılatı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vergi ve Muhasebe Kavramları -->
+        <div class="category-section vergi-category">
+            <div class="category-header">
+                <h2><i class="fas fa-receipt"></i> Vergi ve Muhasebe Kavramları</h2>
+                <p>Vergi mevzuatı ve muhasebe işlemleri</p>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-cut card-icon"></i>
+                    <h3>Stopaj</h3>
+                    <p>Gelir/kurumlar vergisi mükellefi adına ödenmeden önce verginin kesilerek devlete peşin yatırılması.</p>
+                    <div class="card-details">
+                        <strong>Stopaj Uygulamaları:</strong><br>
+                        • Maaş stopajı (%15-35)<br>
+                        • Serbest meslek stopajı (%20)<br>
+                        • Kira stopajı (%20)<br>
+                        • Faiz stopajı (%10)
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-eraser card-icon"></i>
+                    <h3>Terkin</h3>
+                    <p>Kayıtlardan düşme veya silme işlemi, muhasebe kayıtlarının iptali.</p>
+                    <div class="card-details">
+                        <strong>Terkin İşlemleri:</strong><br>
+                        • Vergi borcunun silinmesi<br>
+                        • Kayıt düzeltmeleri<br>
+                        • İptal işlemleri<br>
+                        • Hatalı kayıt düzeltimi
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 75%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- İşlem Türleri -->
+        <div class="category-section islem-category">
+            <div class="category-header">
+                <h2><i class="fas fa-exchange-alt"></i> İşlem Türleri</h2>
+                <p>Ticari ve finansal işlem çeşitleri</p>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-sync-alt card-icon"></i>
+                    <h3>Trampa</h3>
+                    <p>Para kullanmadan mal veya hizmet ile değiş tokuş yapılması, takas işlemi.</p>
+                    <div class="card-details">
+                        <strong>Trampa Özellikleri:</strong><br>
+                        • Nakitsiz ticaret<br>
+                        • Eşdeğer değer takası<br>
+                        • KDV uygulaması<br>
+                        • Emtia borsası işlemleri
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 68%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-calculator card-icon"></i>
+                    <h3>Bütçe Yönetimi</h3>
+                    <p>Belirli bir dönem için planlanan gelir ve gider tahminlerini içeren finansal araç.</p>
+                    <div class="card-details">
+                        <strong>Bütçe Türleri:</strong><br>
+                        • Operasyon bütçesi<br>
+                        • Sermaye bütçesi<br>
+                        • Nakit akış bütçesi<br>
+                        • Ana bütçe
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-exchange-alt card-icon"></i>
+                    <h3>Cari Hesap</h3>
+                    <p>İki taraf arasındaki alacak-verecek ilişkilerinin sürekli olarak izlendiği hesap türü.</p>
+                    <div class="card-details">
+                        <strong>Cari Hesap Türleri:</strong><br>
+                        • Müşteri cari hesapları<br>
+                        • Tedarikçi cari hesapları<br>
+                        • Personel cari hesapları<br>
+                        • Banka cari hesapları
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-globe-americas card-icon"></i>
+                    <h3>Efektif Döviz</h3>
+                    <p>Fiziksel olarak mevcut olan ve anında kullanılabilir durumda bulunan yabancı para birimleri.</p>
+                    <div class="card-details">
+                        <strong>Efektif Özellikler:</strong><br>
+                        • Fiziksel para<br>
+                        • Anında kullanım<br>
+                        • Döviz büroları<br>
+                        • Turizm sektörü
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kontrol ve Değerlendirme -->
+        <div class="category-section kontrol-category">
+            <div class="category-header">
+                <h2><i class="fas fa-search"></i> Kontrol ve Değerlendirme</h2>
+                <p>Denetim ve değerleme işlemleri</p>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-search-dollar card-icon"></i>
+                    <h3>Ekspertiz</h3>
+                    <p>Bir varlığın değerinin ve durumunun uzman kişiler tarafından yapılan kontrol işlemleri.</p>
+                    <div class="card-details">
+                        <strong>Ekspertiz Alanları:</strong><br>
+                        • Gayrimenkul ekspertizi<br>
+                        • Araç ekspertizi<br>
+                        • Makine-teçhizat<br>
+                        • Sanat eseri değerleme
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 86%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-clipboard-check card-icon"></i>
+                    <h3>Envanter</h3>
+                    <p>İşletmede bulunan varlıkların sayım ve kontrol işlemleri, stok tespiti.</p>
+                    <div class="card-details">
+                        <strong>Envanter Türleri:</strong><br>
+                        • Devresel envanter<br>
+                        • Sürekli envanter<br>
+                        • Fiziki envanter<br>
+                        • Muhasebe envanteri
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    <h3>Ciro Analizi</h3>
+                    <p>Belirli bir dönemde işletmenin satış faaliyetlerinden elde ettiği toplam gelir analizi.</p>
+                    <div class="card-details">
+                        <strong>Ciro Metrikleri:</strong><br>
+                        • Aylık ciro artışı<br>
+                        • Yıllık ciro trendi<br>
+                        • Sektörel karşılaştırma<br>
+                        • Karlılık analizi
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="cta-section">
+            <h2>Finansal Expertinizi Geliştirin</h2>
+            <p>Profesyonel iş dünyasında güçlü bir finansal temele sahip olmak için kapsamlı eğitim programlarımızdan faydalanın. Modern finansal araçları kullanmayı öğrenin ve kariyerinizi bir sonraki seviyeye taşıyın.</p>
+            
+            <div class="cta-buttons">
+                <button class="cta-button" onclick="showAlert('course')">
+                    <i class="fas fa-graduation-cap"></i> Detaylı Kurs İçerikleri
+                </button>
+                <button class="cta-button" onclick="showAlert('test')">
+                    <i class="fas fa-question-circle"></i> Bilgi Testi
+                </button>
+                <button class="cta-button" onclick="showAlert('consult')">
+                    <i class="fas fa-user-tie"></i> Uzman Danışmanlık
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-moon';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+
+        // Scroll Indicator
+        function updateScrollIndicator() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.body.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.querySelector('.scroll-indicator').style.width = scrollPercent + '%';
+        }
+
+        window.addEventListener('scroll', updateScrollIndicator);
+
+        // Counter Animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.header-stat .number');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const count = +counter.innerText;
+                const increment = target / 100;
+                
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(() => animateCounters(), 30);
+                } else {
+                    counter.innerText = target;
+                }
+            });
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards
+        document.querySelectorAll('.card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Start counter animation when header is visible
+        const headerObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateCounters, 500);
+                    headerObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        headerObserver.observe(document.querySelector('.header-stats'));
+
+        // Enhanced card hover effects
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-15px) scale(1.02)';
+                this.style.boxShadow = '0 25px 50px rgba(0,0,0,0.15)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = 'var(--shadow)';
+            });
+        });
+
+        // CTA Buttons
+        function showAlert(type) {
+            const messages = {
+                course: 'Kapsamlı finansal eğitim programlarımız hakkında detaylı bilgi almak için iletişime geçin!',
+                test: 'Finansal bilginizi test etmek için interaktif sorularımız yakında hazır olacak!',
+                consult: 'Uzman finansal danışmanlarımızla görüşme planlamak için randevu alın!'
+            };
+            alert(messages[type] || 'Yakında daha fazla özellik eklenecek!');
+        }
+
+        // Smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+
+        // Dynamic interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Random floating animation delays
+            document.querySelectorAll('.floating-icon').forEach((icon, index) => {
+                icon.style.animationDelay = (Math.random() * 3) + 's';
+            });
+            
+            // Ripple effect for buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255,255,255,0.6);
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        pointer-events: none;
+                    `;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Add tilt effect to cards
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mousemove', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 10;
+                    const rotateY = (centerX - x) / 10;
+                    
+                    this.style.transform = `translateY(-15px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) rotateX(0) rotateY(0) scale(1)';
+                });
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            button {
+                position: relative;
+                overflow: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
