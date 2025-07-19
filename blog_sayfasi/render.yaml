@@ -2,6 +2,7 @@ services:
   - type: web
     name: blog-sayfasi
     env: python
+    runtime: python
     buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py setup_render && python manage.py collectstatic --no-input"
     startCommand: "gunicorn blog_sayfasi.wsgi:application"
     envVars:
@@ -16,4 +17,6 @@ services:
       - key: DJANGO_SUPERUSER_EMAIL
         value: ramazan61135@gmail.com
       - key: DJANGO_SUPERUSER_PASSWORD
-        value: 12345678Ramazan 
+        value: 12345678Ramazan
+      - key: PYTHON_VERSION
+        value: 3.11.10 

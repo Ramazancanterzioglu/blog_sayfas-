@@ -6,6 +6,9 @@ echo "=== BUILD BAŞLADI ==="
 echo "Python version:"
 python --version
 
+echo "Upgrading pip..."
+pip install --upgrade pip
+
 echo "Installing dependencies..."
 pip install -r requirements.txt
 
@@ -15,13 +18,13 @@ python -c "import django; print(django.get_version())"
 echo "Checking Django project..."
 python manage.py check
 
-echo "Collecting static files..."
-python manage.py collectstatic --no-input --clear
-
 echo "Running migrations..."
 python manage.py migrate
 
 echo "Setting up Render environment..."
 python manage.py setup_render
+
+echo "Collecting static files..."
+python manage.py collectstatic --no-input --clear
 
 echo "=== BUILD TAMAMLANDI ===" 
