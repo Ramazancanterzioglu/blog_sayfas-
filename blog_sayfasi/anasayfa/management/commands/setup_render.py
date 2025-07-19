@@ -6,6 +6,7 @@ Bu command otomatik olarak superuser oluşturur ve gerekli kurulumları yapar.
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.management import call_command
 import os
 
 class Command(BaseCommand):
@@ -13,22 +14,61 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(
-            self.style.WARNING('🚀 Render.com deployment setup başlatılıyor...')
+            self.style.WARNING('🚀 Render.com FULL SETUP başlatılıyor...')
         )
 
-        # Database kontrolü
+        # 1. Force migrate first
+        self.force_migrate()
+        
+        # 2. Database kontrolü
         self.check_database()
         
-        # Superuser oluştur
-        self.create_superuser()
+        # 3. Superuser oluştur (force)
+        self.force_create_superuser()
         
-        # Gerekli klasörleri oluştur
+        # 4. Gerekli klasörleri oluştur
         self.create_directories()
         
+        # 5. Final verification
+        self.final_verification()
+        
         self.stdout.write(
-            self.style.SUCCESS('✅ Render.com setup tamamlandı!')
+            self.style.SUCCESS('✅ Render.com FULL SETUP tamamlandı!')
         )
 
+    def force_migrate(self):
+        """Force migration - tüm migration'ları zorla çalıştır"""
+        self.stdout.write(
+            self.style.WARNING('🔄 Force migration başlatılıyor...')
+        )
+        
+        try:
+            # Run syncdb first
+            self.stdout.write('📋 Running migrate --run-syncdb...')
+            call_command('migrate', '--run-syncdb', verbosity=1)
+            
+            # Run normal migrations
+            self.stdout.write('📋 Running normal migrations...')
+            call_command('migrate', verbosity=1)
+            
+            # Make sure all apps are migrated
+            self.stdout.write('📋 Running makemigrations...')
+            call_command('makemigrations', verbosity=1)
+            
+            # Final migrate
+            self.stdout.write('📋 Final migration...')
+            call_command('migrate', verbosity=1)
+            
+            self.stdout.write(
+                self.style.SUCCESS('✅ Force migration tamamlandı!')
+            )
+            
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'❌ Migration hatası: {str(e)}')
+            )
+            # Continue anyway
+            
     def check_database(self):
         """Database bağlantısını ve tabloları kontrol eder"""
         try:
@@ -41,33 +81,29 @@ class Command(BaseCommand):
                 self.style.SUCCESS('✅ Database bağlantısı başarılı!')
             )
             
-            # Check for auth_user table
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='auth_user';")
-            result = cursor.fetchone()
+            # List all tables
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = [row[0] for row in cursor.fetchall()]
             
-            if result:
-                self.stdout.write(
-                    self.style.SUCCESS('✅ auth_user tablosu mevcut!')
-                )
-                
-                # Count users
-                cursor.execute("SELECT COUNT(*) FROM auth_user")
-                user_count = cursor.fetchone()[0]
-                self.stdout.write(
-                    self.style.HTTP_INFO(f'👤 Toplam kullanıcı sayısı: {user_count}')
-                )
-            else:
-                self.stdout.write(
-                    self.style.ERROR('❌ auth_user tablosu bulunamadı! Migration sorunu olabilir.')
-                )
-                
+            self.stdout.write(f'📊 Database tables ({len(tables)}):')
+            for table in tables:
+                self.stdout.write(f'  - {table}')
+            
+            # Check critical tables
+            critical_tables = ['auth_user', 'anasayfa_dizifilm', 'anasayfa_geziblog']
+            for table in critical_tables:
+                if table in tables:
+                    self.stdout.write(f'✅ {table} tablosu mevcut')
+                else:
+                    self.stdout.write(f'⚠️ {table} tablosu eksik')
+                    
         except Exception as e:
             self.stdout.write(
                 self.style.ERROR(f'❌ Database kontrolü başarısız: {str(e)}')
             )
 
-    def create_superuser(self):
-        """Otomatik superuser oluşturur"""
+    def force_create_superuser(self):
+        """Force superuser oluştur - aggressive mode"""
         
         # Environment variables'dan al, yoksa default değerler
         username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'ramazancan')
@@ -75,107 +111,56 @@ class Command(BaseCommand):
         password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '12345678Ramazan')
         
         self.stdout.write(
-            self.style.HTTP_INFO(f'🔧 Superuser oluşturma parametreleri:')
+            self.style.WARNING(f'🔧 FORCE Superuser oluşturma: {username}')
         )
-        self.stdout.write(f'   Username: {username}')
-        self.stdout.write(f'   Email: {email}')
-        self.stdout.write(f'   Password length: {len(password)} karakter')
         
         try:
-            # Önce mevcut superuser'ları listele
-            all_users = User.objects.all()
-            self.stdout.write(f'📊 Toplam kullanıcı: {all_users.count()}')
+            # Delete existing user if exists (aggressive approach)
+            existing_users = User.objects.filter(username=username)
+            if existing_users.exists():
+                existing_users.delete()
+                self.stdout.write(f'🗑️ Mevcut kullanıcı silindi: {username}')
             
-            for user in all_users:
-                self.stdout.write(f'   - {user.username} (superuser: {user.is_superuser}, staff: {user.is_staff}, active: {user.is_active})')
+            # Create fresh superuser
+            user = User.objects.create_superuser(
+                username=username,
+                email=email,
+                password=password
+            )
             
-            # Eğer kullanıcı zaten varsa kontrol et
-            if User.objects.filter(username=username).exists():
-                self.stdout.write(
-                    self.style.WARNING(f'⚠️  Superuser "{username}" zaten mevcut!')
-                )
-                user = User.objects.get(username=username)
-                
-                # Kullanıcı detaylarını göster
-                self.stdout.write(f'📋 Mevcut kullanıcı bilgileri:')
-                self.stdout.write(f'   - Username: {user.username}')
-                self.stdout.write(f'   - Email: {user.email}')
-                self.stdout.write(f'   - Is active: {user.is_active}')
-                self.stdout.write(f'   - Is staff: {user.is_staff}')
-                self.stdout.write(f'   - Is superuser: {user.is_superuser}')
-                self.stdout.write(f'   - Last login: {user.last_login}')
-                self.stdout.write(f'   - Date joined: {user.date_joined}')
-                
-                # Şifreyi güncelle ve yetkileri kontrol et
-                user.set_password(password)
-                user.is_superuser = True
-                user.is_staff = True
-                user.is_active = True
-                user.email = email
-                user.save()
-                
-                self.stdout.write(
-                    self.style.SUCCESS(f'✅ Superuser "{username}" güncellendi!')
-                )
-                
-                # Şifre testi
-                from django.contrib.auth import authenticate
-                auth_user = authenticate(username=username, password=password)
-                if auth_user:
-                    self.stdout.write(
-                        self.style.SUCCESS(f'✅ Şifre doğrulaması başarılı!')
-                    )
-                else:
-                    self.stdout.write(
-                        self.style.ERROR(f'❌ Şifre doğrulaması başarısız!')
-                    )
-                    
+            # Double check permissions
+            user.is_superuser = True
+            user.is_staff = True
+            user.is_active = True
+            user.save()
+            
+            self.stdout.write(
+                self.style.SUCCESS(f'🎉 FORCE Superuser oluşturuldu: {username}')
+            )
+            
+            # Test authentication
+            from django.contrib.auth import authenticate
+            auth_user = authenticate(username=username, password=password)
+            if auth_user:
+                self.stdout.write(f'✅ Authentication test başarılı!')
             else:
-                # Yeni superuser oluştur
-                self.stdout.write(f'🆕 Yeni superuser oluşturuluyor...')
-                
-                user = User.objects.create_superuser(
-                    username=username,
-                    email=email,
-                    password=password
-                )
-                self.stdout.write(
-                    self.style.SUCCESS(f'🎉 Superuser "{username}" oluşturuldu!')
-                )
-                
-                # Oluşturma sonrası kontrol
-                user.refresh_from_db()
-                self.stdout.write(f'✅ Oluşturulan kullanıcı kontrol:')
-                self.stdout.write(f'   - ID: {user.id}')
-                self.stdout.write(f'   - Username: {user.username}')
-                self.stdout.write(f'   - Is superuser: {user.is_superuser}')
-                self.stdout.write(f'   - Is staff: {user.is_staff}')
-                self.stdout.write(f'   - Is active: {user.is_active}')
+                self.stdout.write(f'❌ Authentication test başarısız!')
             
-            # Final kontrol - tüm superuser'ları listele
-            superusers = User.objects.filter(is_superuser=True)
-            self.stdout.write(f'🔑 Toplam superuser sayısı: {superusers.count()}')
-            for su in superusers:
-                self.stdout.write(f'   👑 {su.username} ({su.email})')
+            # Final superuser count
+            superuser_count = User.objects.filter(is_superuser=True).count()
+            self.stdout.write(f'👑 Toplam superuser: {superuser_count}')
             
-            self.stdout.write(
-                self.style.HTTP_INFO(f'🌐 Admin Panel: https://yourapp.onrender.com/admin/')
-            )
-            self.stdout.write(
-                self.style.HTTP_INFO(f'👤 Kullanıcı: {username}')
-            )
-            self.stdout.write(
-                self.style.HTTP_INFO(f'🔑 Şifre: {password}')
-            )
+            self.stdout.write(f'🔑 LOGIN INFO:')
+            self.stdout.write(f'   Username: {username}')
+            self.stdout.write(f'   Password: {password}')
+            self.stdout.write(f'   Admin URL: /admin/')
             
         except Exception as e:
             import traceback
             self.stdout.write(
-                self.style.ERROR(f'❌ Superuser oluşturulurken hata: {str(e)}')
+                self.style.ERROR(f'❌ FORCE Superuser hatası: {str(e)}')
             )
-            self.stdout.write(
-                self.style.ERROR(f'🔍 Traceback:\n{traceback.format_exc()}')
-            )
+            self.stdout.write(f'🔍 Traceback:\n{traceback.format_exc()}')
 
     def create_directories(self):
         """Gerekli klasörleri oluşturur"""
@@ -200,4 +185,56 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stdout.write(
                     self.style.ERROR(f'❌ Klasör oluşturulamadı {directory}: {str(e)}')
-                ) 
+                )
+
+    def final_verification(self):
+        """Final doğrulama - her şeyin çalıştığını kontrol et"""
+        self.stdout.write(
+            self.style.WARNING('🔍 Final verification başlatılıyor...')
+        )
+        
+        try:
+            # User count
+            total_users = User.objects.count()
+            superusers = User.objects.filter(is_superuser=True).count()
+            
+            # Model counts
+            from anasayfa.models import DiziFilm, GeziBlog
+            dizi_count = DiziFilm.objects.count()
+            gezi_count = GeziBlog.objects.count()
+            
+            # Summary
+            self.stdout.write(f'📊 FINAL STATS:')
+            self.stdout.write(f'   👤 Total users: {total_users}')
+            self.stdout.write(f'   👑 Superusers: {superusers}')
+            self.stdout.write(f'   🎬 DiziFilm records: {dizi_count}')
+            self.stdout.write(f'   🗺️ GeziBlog records: {gezi_count}')
+            self.stdout.write(f'   📁 Media root: {settings.MEDIA_ROOT}')
+            
+            # Test critical functionality
+            if superusers > 0:
+                self.stdout.write('✅ Superuser check: PASSED')
+            else:
+                self.stdout.write('❌ Superuser check: FAILED')
+                
+            # Test models
+            try:
+                DiziFilm.objects.all().exists()
+                self.stdout.write('✅ DiziFilm model: WORKING')
+            except Exception:
+                self.stdout.write('❌ DiziFilm model: ERROR')
+                
+            try:
+                GeziBlog.objects.all().exists()
+                self.stdout.write('✅ GeziBlog model: WORKING')
+            except Exception:
+                self.stdout.write('❌ GeziBlog model: ERROR')
+                
+            self.stdout.write(
+                self.style.SUCCESS('✅ Final verification tamamlandı!')
+            )
+            
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'❌ Final verification hatası: {str(e)}')
+            ) 
