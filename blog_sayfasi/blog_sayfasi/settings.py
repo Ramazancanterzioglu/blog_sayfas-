@@ -32,10 +32,36 @@ SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-)vnuui#-84$@z4wbz7v0z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = []
+# Logging configuration for production debugging
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    }
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'blog-sayfas.onrender.com']
+
+# Render.com hostname ayarları
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Production'da tüm render.com subdomainlerine izin ver
+if 'RENDER' in os.environ:
+    ALLOWED_HOSTS.extend([
+        '.onrender.com',
+        '*.onrender.com',
+        'blog-sayfas.onrender.com'
+    ])
 
 
 # Application definition
@@ -136,13 +162,20 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# Static files configuration for production
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # This setting tells Django at which URL static files are going to be served to the user.
 if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
     # and renames the files with unique names for each version to support long-term caching
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Ensure static files are found
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
