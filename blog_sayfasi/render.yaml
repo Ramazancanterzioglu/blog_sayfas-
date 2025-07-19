@@ -2,12 +2,18 @@ services:
   - type: web
     name: blog-sayfasi
     env: python
-    buildCommand: "pip install -r requirements.txt && python simple_test.py && python manage.py collectstatic --no-input"
-    startCommand: "python manage.py runserver 0.0.0.0:$PORT"
-          envVars:
-        - key: DEBUG
-          value: true
-        - key: SECRET_KEY
-          generateValue: true
-        - key: RENDER
-          value: true 
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py setup_render && python manage.py collectstatic --no-input"
+    startCommand: "gunicorn blog_sayfasi.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: RENDER
+        value: true
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: ramazancan
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: ramazan61135@gmail.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: 12345678Ramazan 

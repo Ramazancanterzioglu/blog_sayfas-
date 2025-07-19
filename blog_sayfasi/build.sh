@@ -21,4 +21,7 @@ python manage.py collectstatic --no-input --clear
 echo "Running migrations..."
 python manage.py migrate
 
+echo "Setting up Render environment..."
+python manage.py setup_render
+
 echo "=== BUILD TAMAMLANDI ===" 
