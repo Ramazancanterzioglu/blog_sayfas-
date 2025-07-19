@@ -3,7 +3,7 @@ services:
     name: blog-sayfasi
     env: python
     runtime: python
-    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt && python manage.py migrate --run-syncdb && python manage.py migrate && python manage.py setup_render && python manage.py collectstatic --no-input"
+    buildCommand: "./build.sh"
     startCommand: "gunicorn blog_sayfasi.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DEBUG
@@ -21,4 +21,9 @@ services:
       - key: PYTHON_VERSION
         value: "3.11.6"
       - key: RENDER_EXTERNAL_HOSTNAME
-        value: blog-sayfasi.onrender.com 
+        value: blog-sayfasi.onrender.com
+
+databases:
+  - name: blog-sayfasi-db
+    databaseName: blog_sayfasi_prod
+    user: blog_user 

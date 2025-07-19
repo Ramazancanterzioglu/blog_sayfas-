@@ -170,11 +170,29 @@ if 'RENDER' in os.environ:
     if 'DATABASE_URL' in os.environ and dj_database_url:
         # PostgreSQL if DATABASE_URL provided
         DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        print("🐘 PostgreSQL database kullanılıyor")
     else:
-        # SQLite for Render - use tmp directory with fallback
+        # SQLite for Render - use persistent location if available
         import tempfile
         import os
-        db_path = os.path.join('/tmp', 'db.sqlite3')
+        
+        # Try to use a more persistent location
+        db_dirs = ['/opt/render/project/src', '/tmp']
+        db_path = None
+        
+        for db_dir in db_dirs:
+            try:
+                if os.path.exists(db_dir) and os.access(db_dir, os.W_OK):
+                    db_path = os.path.join(db_dir, 'db.sqlite3')
+                    break
+            except:
+                continue
+        
+        if not db_path:
+            db_path = os.path.join('/tmp', 'db.sqlite3')
+            
+        print(f"📁 SQLite database konumu: {db_path}")
+        
         DATABASES['default'] = {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': db_path,

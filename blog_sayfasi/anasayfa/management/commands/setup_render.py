@@ -74,7 +74,21 @@ class Command(BaseCommand):
         email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'ramazan61135@gmail.com')
         password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '12345678Ramazan')
         
+        self.stdout.write(
+            self.style.HTTP_INFO(f'🔧 Superuser oluşturma parametreleri:')
+        )
+        self.stdout.write(f'   Username: {username}')
+        self.stdout.write(f'   Email: {email}')
+        self.stdout.write(f'   Password length: {len(password)} karakter')
+        
         try:
+            # Önce mevcut superuser'ları listele
+            all_users = User.objects.all()
+            self.stdout.write(f'📊 Toplam kullanıcı: {all_users.count()}')
+            
+            for user in all_users:
+                self.stdout.write(f'   - {user.username} (superuser: {user.is_superuser}, staff: {user.is_staff}, active: {user.is_active})')
+            
             # Eğer kullanıcı zaten varsa kontrol et
             if User.objects.filter(username=username).exists():
                 self.stdout.write(
@@ -82,16 +96,44 @@ class Command(BaseCommand):
                 )
                 user = User.objects.get(username=username)
                 
-                # Superuser yetkilerini kontrol et ve güncelle
-                if not user.is_superuser or not user.is_staff:
-                    user.is_superuser = True
-                    user.is_staff = True
-                    user.save()
+                # Kullanıcı detaylarını göster
+                self.stdout.write(f'📋 Mevcut kullanıcı bilgileri:')
+                self.stdout.write(f'   - Username: {user.username}')
+                self.stdout.write(f'   - Email: {user.email}')
+                self.stdout.write(f'   - Is active: {user.is_active}')
+                self.stdout.write(f'   - Is staff: {user.is_staff}')
+                self.stdout.write(f'   - Is superuser: {user.is_superuser}')
+                self.stdout.write(f'   - Last login: {user.last_login}')
+                self.stdout.write(f'   - Date joined: {user.date_joined}')
+                
+                # Şifreyi güncelle ve yetkileri kontrol et
+                user.set_password(password)
+                user.is_superuser = True
+                user.is_staff = True
+                user.is_active = True
+                user.email = email
+                user.save()
+                
+                self.stdout.write(
+                    self.style.SUCCESS(f'✅ Superuser "{username}" güncellendi!')
+                )
+                
+                # Şifre testi
+                from django.contrib.auth import authenticate
+                auth_user = authenticate(username=username, password=password)
+                if auth_user:
                     self.stdout.write(
-                        self.style.SUCCESS(f'✅ Superuser yetkileri güncellendi!')
+                        self.style.SUCCESS(f'✅ Şifre doğrulaması başarılı!')
                     )
+                else:
+                    self.stdout.write(
+                        self.style.ERROR(f'❌ Şifre doğrulaması başarısız!')
+                    )
+                    
             else:
                 # Yeni superuser oluştur
+                self.stdout.write(f'🆕 Yeni superuser oluşturuluyor...')
+                
                 user = User.objects.create_superuser(
                     username=username,
                     email=email,
@@ -100,17 +142,39 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.SUCCESS(f'🎉 Superuser "{username}" oluşturuldu!')
                 )
+                
+                # Oluşturma sonrası kontrol
+                user.refresh_from_db()
+                self.stdout.write(f'✅ Oluşturulan kullanıcı kontrol:')
+                self.stdout.write(f'   - ID: {user.id}')
+                self.stdout.write(f'   - Username: {user.username}')
+                self.stdout.write(f'   - Is superuser: {user.is_superuser}')
+                self.stdout.write(f'   - Is staff: {user.is_staff}')
+                self.stdout.write(f'   - Is active: {user.is_active}')
+            
+            # Final kontrol - tüm superuser'ları listele
+            superusers = User.objects.filter(is_superuser=True)
+            self.stdout.write(f'🔑 Toplam superuser sayısı: {superusers.count()}')
+            for su in superusers:
+                self.stdout.write(f'   👑 {su.username} ({su.email})')
             
             self.stdout.write(
-                self.style.HTTP_INFO(f'📝 Admin Panel: https://yourapp.onrender.com/admin/')
+                self.style.HTTP_INFO(f'🌐 Admin Panel: https://yourapp.onrender.com/admin/')
             )
             self.stdout.write(
                 self.style.HTTP_INFO(f'👤 Kullanıcı: {username}')
             )
+            self.stdout.write(
+                self.style.HTTP_INFO(f'🔑 Şifre: {password}')
+            )
             
         except Exception as e:
+            import traceback
             self.stdout.write(
                 self.style.ERROR(f'❌ Superuser oluşturulurken hata: {str(e)}')
+            )
+            self.stdout.write(
+                self.style.ERROR(f'🔍 Traceback:\n{traceback.format_exc()}')
             )
 
     def create_directories(self):

@@ -168,6 +168,7 @@ def test_view(request):
     import sys
     from django.db import connection
     from django.contrib.auth.models import User
+    from django.contrib.auth import authenticate
     
     # Database test
     try:
@@ -182,21 +183,43 @@ def test_view(request):
             user_status = f"✅ Users: {user_count}"
             
             if user_count > 0:
-                users = User.objects.all()[:3]
-                user_list = [f"{u.username} ({'superuser' if u.is_superuser else 'user'})" for u in users]
+                users = User.objects.all()[:5]
+                user_list = []
+                for u in users:
+                    user_info = f"{u.username} - Staff: {u.is_staff}, Super: {u.is_superuser}, Active: {u.is_active}"
+                    user_list.append(user_info)
                 user_details = "<br>".join(user_list)
+                
+                # Test superuser authentication
+                superusers = User.objects.filter(is_superuser=True)
+                auth_test = "<h3>🔐 Superuser Authentication Test:</h3>"
+                
+                for su in superusers:
+                    # Try common passwords
+                    test_passwords = ['12345678Ramazan', 'admin', 'password']
+                    for pwd in test_passwords:
+                        auth_user = authenticate(username=su.username, password=pwd)
+                        if auth_user:
+                            auth_test += f"<p>✅ {su.username} + {pwd} = SUCCESS</p>"
+                            break
+                    else:
+                        auth_test += f"<p>❌ {su.username} - PASSWORD NOT FOUND in test list</p>"
+                        
             else:
                 user_details = "No users found"
+                auth_test = ""
                 
         except Exception as e:
             user_status = f"❌ User error: {str(e)}"
             user_details = ""
+            auth_test = ""
             
     except Exception as e:
         db_status = f"❌ Database error: {str(e)}"
         tables = []
         user_status = "❌ Can't check users"
         user_details = ""
+        auth_test = ""
     
     # DiziFilm test
     try:
@@ -205,6 +228,20 @@ def test_view(request):
         dizi_status = f"✅ DiziFilm: {dizi_count} items"
     except Exception as e:
         dizi_status = f"❌ DiziFilm error: {str(e)}"
+    
+    # Environment info
+    env_info = f"""
+    <h3>🌍 Environment:</h3>
+    <ul>
+        <li>RENDER: {os.environ.get('RENDER', 'Not set')}</li>
+        <li>DEBUG: {settings.DEBUG}</li>
+        <li>Database: {settings.DATABASES['default']['ENGINE']}</li>
+        <li>Database Name: {settings.DATABASES['default']['NAME']}</li>
+        <li>DJANGO_SUPERUSER_USERNAME: {os.environ.get('DJANGO_SUPERUSER_USERNAME', 'Not set')}</li>
+        <li>DJANGO_SUPERUSER_EMAIL: {os.environ.get('DJANGO_SUPERUSER_EMAIL', 'Not set')}</li>
+        <li>Password Length: {len(os.environ.get('DJANGO_SUPERUSER_PASSWORD', ''))}</li>
+    </ul>
+    """
     
     return HttpResponse(f"""
     <h1>🎉 Django Çalışıyor!</h1>
@@ -215,6 +252,8 @@ def test_view(request):
         <li>Debug Mode: {settings.DEBUG}</li>
         <li>Allowed Hosts: {settings.ALLOWED_HOSTS}</li>
     </ul>
+    
+    {env_info}
     
     <h2>Database Durumu:</h2>
     <ul>
@@ -230,6 +269,11 @@ def test_view(request):
     
     <h3>Users:</h3>
     <p>{user_details}</p>
+    
+    {auth_test}
+    
+    <h2>Manual Superuser Creation:</h2>
+    <p><a href="/create-superuser/" style="background: #007cba; color: white; padding: 10px; text-decoration: none;">🔑 Create/Update Superuser</a></p>
     
     <h2>Test Linkleri:</h2>
     <ul>
@@ -294,6 +338,103 @@ def force_migrate(request):
     html_output += """
     <hr>
     <p><a href="/test/">Test Page</a> | <a href="/">Ana Sayfa</a> | <a href="/admin/">Admin</a></p>
+    """
+    
+    return HttpResponse(html_output)
+
+def create_superuser_view(request):
+    """Manuel superuser oluşturma view'ı"""
+    from django.contrib.auth.models import User
+    from django.contrib.auth import authenticate
+    import os
+    
+    # Default values
+    username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'ramazancan')
+    email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'ramazan61135@gmail.com')  
+    password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '12345678Ramazan')
+    
+    html_output = "<h1>🔑 Manuel Superuser Oluşturma</h1>"
+    
+    try:
+        # Mevcut kullanıcıları listele
+        html_output += "<h2>📊 Mevcut Kullanıcılar:</h2><ul>"
+        users = User.objects.all()
+        for user in users:
+            html_output += f"<li>{user.username} - Staff: {user.is_staff}, Super: {user.is_superuser}, Active: {user.is_active}</li>"
+        html_output += f"</ul><p>Toplam: {users.count()} kullanıcı</p>"
+        
+        # Superuser oluştur/güncelle
+        html_output += f"<h2>🛠️ Superuser İşlemi:</h2>"
+        html_output += f"<p>Username: <strong>{username}</strong></p>"
+        html_output += f"<p>Email: <strong>{email}</strong></p>"
+        html_output += f"<p>Password: <strong>{'*' * len(password)}</strong> ({len(password)} karakter)</p>"
+        
+        if User.objects.filter(username=username).exists():
+            # Mevcut kullanıcıyı güncelle
+            user = User.objects.get(username=username)
+            
+            html_output += f"<h3>🔄 Kullanıcı Güncelleniyor...</h3>"
+            html_output += f"<p>Eski bilgiler: Staff={user.is_staff}, Super={user.is_superuser}, Active={user.is_active}</p>"
+            
+            user.set_password(password)
+            user.is_superuser = True
+            user.is_staff = True
+            user.is_active = True
+            user.email = email
+            user.save()
+            
+            html_output += f"<p>✅ Kullanıcı güncellendi!</p>"
+            html_output += f"<p>Yeni bilgiler: Staff={user.is_staff}, Super={user.is_superuser}, Active={user.is_active}</p>"
+            
+        else:
+            # Yeni kullanıcı oluştur
+            html_output += f"<h3>🆕 Yeni Kullanıcı Oluşturuluyor...</h3>"
+            
+            user = User.objects.create_superuser(
+                username=username,
+                email=email,
+                password=password
+            )
+            
+            html_output += f"<p>✅ Yeni superuser oluşturuldu!</p>"
+            html_output += f"<p>ID: {user.id}, Staff: {user.is_staff}, Super: {user.is_superuser}</p>"
+        
+        # Authentication test
+        html_output += f"<h3>🔐 Kimlik Doğrulama Testi:</h3>"
+        auth_user = authenticate(username=username, password=password)
+        
+        if auth_user:
+            html_output += f"<p>✅ Authentication başarılı!</p>"
+            html_output += f"<p>Authenticated user: {auth_user.username}</p>"
+            html_output += f"<p>Is authenticated: {auth_user.is_authenticated}</p>"
+        else:
+            html_output += f"<p>❌ Authentication başarısız!</p>"
+            
+        # Final superuser list
+        html_output += f"<h3>👑 Superuser Listesi:</h3><ul>"
+        superusers = User.objects.filter(is_superuser=True)
+        for su in superusers:
+            html_output += f"<li><strong>{su.username}</strong> ({su.email}) - Active: {su.is_active}</li>"
+        html_output += f"</ul><p>Toplam superuser: {superusers.count()}</p>"
+        
+        # Login link
+        html_output += f"""
+        <h2>🎯 Admin Panel Giriş:</h2>
+        <p><a href="/admin/" target="_blank" style="background: #417690; color: white; padding: 15px; text-decoration: none; font-size: 18px;">
+            🔗 Admin Panel'e Git
+        </a></p>
+        <p><strong>Kullanıcı adı:</strong> {username}</p>
+        <p><strong>Şifre:</strong> {password}</p>
+        """
+        
+    except Exception as e:
+        import traceback
+        html_output += f"<h3>❌ Hata:</h3><p>{str(e)}</p>"
+        html_output += f"<pre>{traceback.format_exc()}</pre>"
+    
+    html_output += """
+    <hr>
+    <p><a href="/test/">🧪 Test Page</a> | <a href="/">🏠 Ana Sayfa</a></p>
     """
     
     return HttpResponse(html_output)
