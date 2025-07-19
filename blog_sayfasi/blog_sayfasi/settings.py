@@ -67,14 +67,43 @@ LOGGING = {
 
 ALLOWED_HOSTS = ['*']  # Geçici olarak tüm hostname'lere izin ver
 
-# Development server için
-if 'RENDER' in os.environ:
-    ALLOWED_HOSTS = ['*']
-
 # Render.com hostname ayarları
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Production security settings for Render
+if 'RENDER' in os.environ:
+    ALLOWED_HOSTS = ['*']
+    
+    # CSRF settings for production
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.onrender.com',
+    ]
+    
+    # Add specific hostname if provided
+    if RENDER_EXTERNAL_HOSTNAME:
+        CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+        if RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    
+    # Session and CSRF settings for production
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = False  # JavaScript erişimi için
+    CSRF_USE_SESSIONS = False  # Session yerine cookie kullan
+    CSRF_COOKIE_SAMESITE = 'Lax'  # CSRF için daha esnek
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # CSRF failure için özel ayar
+    CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+    
+    # Security headers (biraz daha esnek)
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'SAMEORIGIN'  # DENY yerine SAMEORIGIN
+else:
+    # Development settings
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
 
 
 # Application definition
@@ -99,6 +128,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Production'da CSRF debug'ı için
+if 'RENDER' in os.environ and DEBUG:
+    import logging
+    logging.getLogger('django.security.csrf').setLevel(logging.DEBUG)
 
 ROOT_URLCONF = "blog_sayfasi.urls"
 

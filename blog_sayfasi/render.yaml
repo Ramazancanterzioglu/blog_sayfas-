@@ -19,4 +19,6 @@ services:
       - key: DJANGO_SUPERUSER_PASSWORD
         value: 12345678Ramazan
       - key: PYTHON_VERSION
-        value: 3.11.10 
+        value: 3.11.10
+      - key: RENDER_EXTERNAL_HOSTNAME
+        value: blog-sayfasi.onrender.com 

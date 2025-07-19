@@ -41,10 +41,10 @@
             </div>
             
             <div class="header-stats">
-                <div class="header-stat">
-                    <span class="number" data-target="{{ dizi_filmler.count }}">0</span>
-                    <span class="label">Öneri</span>
-                </div>
+                                 <div class="header-stat">
+                     <span class="number" data-target="{% if dizi_filmler %}{{ dizi_filmler.count }}{% else %}0{% endif %}">0</span>
+                     <span class="label">Öneri</span>
+                 </div>
                 <div class="header-stat">
                     <span class="number" data-target="{{ kategori_choices|length }}">0</span>
                     <span class="label">Kategori</span>
@@ -116,7 +116,7 @@
         </div>
 
         <!-- Dizi/Film Kartları -->
-        {% if dizi_filmler %}
+        {% if dizi_filmler and dizi_filmler.count > 0 %}
             <div class="category-section muhasebe-category">
                 <div class="category-header">
                     <h2><i class="fas fa-star"></i> Önerilen Dizi ve Filmler</h2>

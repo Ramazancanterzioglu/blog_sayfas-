@@ -29,52 +29,100 @@ def muhasebe_terimleri(request):
     return render(request, 'anasayfa/muhasebe-terimleri.html')
 
 def dizi_film_onerileri(request):
-    # Tüm önerilen dizi/filmleri getir
-    dizi_filmler = DiziFilm.objects.filter(onerilen=True).order_by('-olusturma_tarihi')
-    
-    # Kategori filtreleme
-    kategori = request.GET.get('kategori')
-    if kategori:
-        dizi_filmler = dizi_filmler.filter(kategori=kategori)
-    
-    # Tür filtreleme
-    tur = request.GET.get('tur')
-    if tur:
-        dizi_filmler = dizi_filmler.filter(tur=tur)
-    
-    # Arama
-    arama = request.GET.get('arama')
-    if arama:
-        dizi_filmler = dizi_filmler.filter(isim__icontains=arama)
-    
-    context = {
-        'dizi_filmler': dizi_filmler,
-        'kategori_choices': DiziFilm.KATEGORI_CHOICES,
-        'tur_choices': DiziFilm.TUR_CHOICES,
-        'secili_kategori': kategori,
-        'secili_tur': tur,
-        'arama_terimi': arama,
-    }
-    
-    return render(request, 'anasayfa/dizi-film-onerileri.html', context)
+    try:
+        # Tüm önerilen dizi/filmleri getir
+        dizi_filmler = DiziFilm.objects.filter(onerilen=True).order_by('-olusturma_tarihi')
+        
+        # Kategori filtreleme
+        kategori = request.GET.get('kategori')
+        if kategori:
+            dizi_filmler = dizi_filmler.filter(kategori=kategori)
+        
+        # Tür filtreleme
+        tur = request.GET.get('tur')
+        if tur:
+            dizi_filmler = dizi_filmler.filter(tur=tur)
+        
+        # Arama
+        arama = request.GET.get('arama')
+        if arama:
+            dizi_filmler = dizi_filmler.filter(isim__icontains=arama)
+        
+        context = {
+            'dizi_filmler': dizi_filmler,
+            'kategori_choices': DiziFilm.KATEGORI_CHOICES,
+            'tur_choices': DiziFilm.TUR_CHOICES,
+            'secili_kategori': kategori,
+            'secili_tur': tur,
+            'arama_terimi': arama,
+        }
+        
+        return render(request, 'anasayfa/dizi-film-onerileri.html', context)
+        
+    except Exception as e:
+        from django.conf import settings
+        if settings.DEBUG:
+            return HttpResponse(f"""
+            <h1>Dizi/Film Önerileri Sayfası Hatası</h1>
+            <p><strong>Hata:</strong> {str(e)}</p>
+            <p><strong>Hata Türü:</strong> {type(e).__name__}</p>
+            <hr>
+            <p><a href="/">Ana Sayfaya Dön</a></p>
+            """)
+        else:
+            # Production'da generic error page
+            return render(request, 'anasayfa/index.html', {
+                'error_message': 'Dizi/Film önerileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.'
+            })
 
 def dizi_film_detay(request, pk):
-    dizi_film = get_object_or_404(DiziFilm, pk=pk)
-    # Benzer öneriler (aynı tür veya kategori)
-    benzer_oneriler = DiziFilm.objects.filter(
-        onerilen=True
-    ).filter(
-        tur=dizi_film.tur
-    ).exclude(
-        pk=dizi_film.pk
-    )[:3]
-    
-    context = {
-        'dizi_film': dizi_film,
-        'benzer_oneriler': benzer_oneriler,
-    }
-    
-    return render(request, 'anasayfa/dizi-film-detay.html', context)
+    try:
+        dizi_film = get_object_or_404(DiziFilm, pk=pk)
+        # Benzer öneriler (aynı tür veya kategori)
+        benzer_oneriler = DiziFilm.objects.filter(
+            onerilen=True
+        ).filter(
+            tur=dizi_film.tur
+        ).exclude(
+            pk=dizi_film.pk
+        )[:3]
+        
+        context = {
+            'dizi_film': dizi_film,
+            'benzer_oneriler': benzer_oneriler,
+        }
+        
+        return render(request, 'anasayfa/dizi-film-detay.html', context)
+        
+    except DiziFilm.DoesNotExist:
+        from django.conf import settings
+        if settings.DEBUG:
+            return HttpResponse(f"""
+            <h1>Dizi/Film Bulunamadı</h1>
+            <p>ID: {pk} olan dizi/film bulunamadı.</p>
+            <p><a href="/dizi-film-onerileri/">Dizi/Film Önerileri</a></p>
+            <p><a href="/">Ana Sayfa</a></p>
+            """)
+        else:
+            return render(request, 'anasayfa/dizi-film-onerileri.html', {
+                'error_message': 'Aradığınız içerik bulunamadı.'
+            })
+    except Exception as e:
+        from django.conf import settings
+        if settings.DEBUG:
+            return HttpResponse(f"""
+            <h1>Dizi/Film Detay Sayfası Hatası</h1>
+            <p><strong>Hata:</strong> {str(e)}</p>
+            <p><strong>Hata Türü:</strong> {type(e).__name__}</p>
+            <p><strong>ID:</strong> {pk}</p>
+            <hr>
+            <p><a href="/dizi-film-onerileri/">Dizi/Film Önerileri</a></p>
+            <p><a href="/">Ana Sayfa</a></p>
+            """)
+        else:
+            return render(request, 'anasayfa/dizi-film-onerileri.html', {
+                'error_message': 'İçerik yüklenirken bir hata oluştu.'
+            })
 
 def ornek_sayfa(request):
     return render(request, 'anasayfa/ornek.html')

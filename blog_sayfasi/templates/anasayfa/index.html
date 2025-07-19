@@ -71,6 +71,21 @@
         </div>
     </header>
     <div class="container">
+        {% if error_message %}
+            <div class="error-section" style="
+                background: #f8d7da;
+                color: #721c24;
+                padding: 1rem 2rem;
+                border-radius: 10px;
+                margin: 2rem 0;
+                border: 1px solid #f5c6cb;
+                text-align: center;
+            ">
+                <h3><i class="fas fa-exclamation-triangle"></i> Bilgi</h3>
+                <p>{{ error_message }}</p>
+            </div>
+        {% endif %}
+        
         <div class="category-section sirket-category">
             <div class="category-header">
                 <h2><i class="fas fa-building"></i> Şirket Türleri</h2>
