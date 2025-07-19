@@ -16,6 +16,9 @@ class Command(BaseCommand):
             self.style.WARNING('🚀 Render.com deployment setup başlatılıyor...')
         )
 
+        # Database kontrolü
+        self.check_database()
+        
         # Superuser oluştur
         self.create_superuser()
         
@@ -25,6 +28,43 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS('✅ Render.com setup tamamlandı!')
         )
+
+    def check_database(self):
+        """Database bağlantısını ve tabloları kontrol eder"""
+        try:
+            from django.db import connection
+            cursor = connection.cursor()
+            
+            # Database connection test
+            cursor.execute("SELECT 1")
+            self.stdout.write(
+                self.style.SUCCESS('✅ Database bağlantısı başarılı!')
+            )
+            
+            # Check for auth_user table
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='auth_user';")
+            result = cursor.fetchone()
+            
+            if result:
+                self.stdout.write(
+                    self.style.SUCCESS('✅ auth_user tablosu mevcut!')
+                )
+                
+                # Count users
+                cursor.execute("SELECT COUNT(*) FROM auth_user")
+                user_count = cursor.fetchone()[0]
+                self.stdout.write(
+                    self.style.HTTP_INFO(f'👤 Toplam kullanıcı sayısı: {user_count}')
+                )
+            else:
+                self.stdout.write(
+                    self.style.ERROR('❌ auth_user tablosu bulunamadı! Migration sorunu olabilir.')
+                )
+                
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'❌ Database kontrolü başarısız: {str(e)}')
+            )
 
     def create_superuser(self):
         """Otomatik superuser oluşturur"""
@@ -79,7 +119,6 @@ class Command(BaseCommand):
         directories = [
             settings.MEDIA_ROOT,
             os.path.join(settings.MEDIA_ROOT, 'dizi_film'),
-            os.path.join(settings.BASE_DIR, 'data'),  # Database için
         ]
         
         for directory in directories:

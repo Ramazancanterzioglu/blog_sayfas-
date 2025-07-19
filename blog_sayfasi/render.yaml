@@ -3,7 +3,7 @@ services:
     name: blog-sayfasi
     env: python
     runtime: python
-    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py setup_render && python manage.py collectstatic --no-input"
+    buildCommand: "./build.sh"
     startCommand: "gunicorn blog_sayfasi.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DEBUG

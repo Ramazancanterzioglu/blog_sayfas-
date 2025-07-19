@@ -171,11 +171,14 @@ if 'RENDER' in os.environ:
         # PostgreSQL if DATABASE_URL provided
         DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
     else:
-        # SQLite for Render (persistent storage)
+        # SQLite for Render - use tmp directory with fallback
+        import tempfile
         import os
-        db_dir = os.path.join(BASE_DIR, 'data')
-        os.makedirs(db_dir, exist_ok=True)
-        DATABASES['default']['NAME'] = os.path.join(db_dir, 'db.sqlite3')
+        db_path = os.path.join('/tmp', 'db.sqlite3')
+        DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': db_path,
+        }
 
 
 # Password validation
