@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ dizi_film.isim }} - Dizi Film Önerileri</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="scroll-indicator"></div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+    
+    <div class="floating-elements">
+        <i class="fas fa-video floating-icon" style="font-size: 3rem;"></i>
+        <i class="fas fa-film floating-icon" style="font-size: 2.5rem;"></i>
+        <i class="fas fa-tv floating-icon" style="font-size: 2rem;"></i>
+        <i class="fas fa-play-circle floating-icon" style="font-size: 2.8rem;"></i>
+        <i class="fas fa-star floating-icon" style="font-size: 2.6rem;"></i>
+    </div>
+    
+    <header class="header detail-header">
+        <div class="header-content">
+            <h1><i class="fas fa-{% if dizi_film.kategori == 'dizi' %}tv{% else %}film{% endif %}"></i> {{ dizi_film.isim }}</h1>
+            <p>{{ dizi_film.get_kategori_display }} - {{ dizi_film.get_tur_display }} - {{ dizi_film.yayın_yili }}</p>
+            
+            <!-- Sosyal Medya Linkleri -->
+            <div class="social-links">
+                <a href="https://www.instagram.com/aysegulasya.t?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="social-link">
+                    <i class="fab fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://x.com/aysegulasya11?fbclid=PAZXh0bgNhZW0CMTEAAaeodzh0JLngsvWonGYTJrP2OLkA29UnGBnm1JWKtTuOF3QfPhe8QmS7D-klsg_aem_dkcnex2A182SMfL-DCe13w" target="_blank" class="social-link">
+                    <i class="fab fa-twitter"></i>
+                    <span>Twitter</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Geri Dönüş Butonu -->
+    <div class="back-button-container">
+        <button class="back-button" onclick="window.location.href='{% url 'dizi_film_onerileri' %}'">
+            <i class="fas fa-arrow-left"></i>
+            <span>Önerilere Dön</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Ana İçerik Bölümü -->
+        <div class="detail-content">
+            <div class="detail-main">
+                <div class="detail-image">
+                    {% if dizi_film.fotograf %}
+                        <img src="{{ dizi_film.fotograf.url }}" alt="{{ dizi_film.isim }}">
+                    {% else %}
+                        <div class="no-image-large">
+                            <i class="fas fa-{% if dizi_film.kategori == 'dizi' %}tv{% else %}film{% endif %}"></i>
+                        </div>
+                    {% endif %}
+                    <div class="image-overlay">
+                        <span class="category-badge {{ dizi_film.kategori }}">{{ dizi_film.get_kategori_display }}</span>
+                        {% if dizi_film.imdb_puani %}
+                            <span class="rating-badge-large">
+                                <i class="fas fa-star"></i> {{ dizi_film.imdb_puani }}/10
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="detail-info">
+                    <div class="detail-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-tag"></i>
+                            <span>Tür: {{ dizi_film.get_tur_display }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Yıl: {{ dizi_film.yayın_yili }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Süre: {{ dizi_film.sure }}</span>
+                        </div>
+                        {% if dizi_film.imdb_puani %}
+                            <div class="meta-item">
+                                <i class="fas fa-star"></i>
+                                <span>IMDB: {{ dizi_film.imdb_puani }}/10</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="detail-description">
+                        <h3><i class="fas fa-info-circle"></i> Açıklama</h3>
+                        <p>{{ dizi_film.tanim|linebreaks }}</p>
+                    </div>
+                    
+                    <div class="admin-review">
+                        <h3><i class="fas fa-user-tie"></i> Admin Yorumu</h3>
+                        <div class="review-content">
+                            <p>{{ dizi_film.admin_yorumu|linebreaks }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Benzer Öneriler -->
+            {% if benzer_oneriler %}
+                <div class="similar-section">
+                    <h3><i class="fas fa-thumbs-up"></i> Benzer Öneriler</h3>
+                    <div class="similar-grid">
+                        {% for item in benzer_oneriler %}
+                            <div class="similar-card">
+                                <div class="similar-image">
+                                    {% if item.fotograf %}
+                                        <img src="{{ item.fotograf.url }}" alt="{{ item.isim }}">
+                                    {% else %}
+                                        <div class="no-image-small">
+                                            <i class="fas fa-{% if item.kategori == 'dizi' %}tv{% else %}film{% endif %}"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="similar-overlay">
+                                        <span class="category-badge {{ item.kategori }}">{{ item.get_kategori_display }}</span>
+                                    </div>
+                                </div>
+                                <div class="similar-info">
+                                    <h4>{{ item.isim }}</h4>
+                                    <p>{{ item.get_tur_display }} - {{ item.yayın_yili }}</p>
+                                    {% if item.imdb_puani %}
+                                        <div class="similar-rating">
+                                            <i class="fas fa-star"></i> {{ item.imdb_puani }}
+                                        </div>
+                                    {% endif %}
+                                    <a href="{% url 'dizi_film_detay' item.pk %}" class="similar-link">
+                                        <i class="fas fa-eye"></i> İncele
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Daha Fazla Öneri</h2>
+            <p>Kaliteli içerikler için diğer önerilerimize göz atın!</p>
+            <div class="cta-buttons">
+                <button class="cta-button" onclick="window.location.href='{% url 'dizi_film_onerileri' %}'">
+                    <i class="fas fa-list"></i> Tüm Öneriler
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'dizi_film_onerileri' %}?kategori=dizi'">
+                    <i class="fas fa-tv"></i> Diziler
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'dizi_film_onerileri' %}?kategori=film'">
+                    <i class="fas fa-film"></i> Filmler
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'anasayfa' %}'">
+                    <i class="fas fa-home"></i> Ana Sayfa
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html> 

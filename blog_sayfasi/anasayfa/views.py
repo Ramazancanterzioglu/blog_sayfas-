@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.conf import settings
+from .models import DiziFilm
 import os
 
 def anasayfa(request):
@@ -27,6 +28,54 @@ def oran_analizleri(request):
 def muhasebe_terimleri(request):
     return render(request, 'anasayfa/muhasebe-terimleri.html')
 
+def dizi_film_onerileri(request):
+    # Tüm önerilen dizi/filmleri getir
+    dizi_filmler = DiziFilm.objects.filter(onerilen=True).order_by('-olusturma_tarihi')
+    
+    # Kategori filtreleme
+    kategori = request.GET.get('kategori')
+    if kategori:
+        dizi_filmler = dizi_filmler.filter(kategori=kategori)
+    
+    # Tür filtreleme
+    tur = request.GET.get('tur')
+    if tur:
+        dizi_filmler = dizi_filmler.filter(tur=tur)
+    
+    # Arama
+    arama = request.GET.get('arama')
+    if arama:
+        dizi_filmler = dizi_filmler.filter(isim__icontains=arama)
+    
+    context = {
+        'dizi_filmler': dizi_filmler,
+        'kategori_choices': DiziFilm.KATEGORI_CHOICES,
+        'tur_choices': DiziFilm.TUR_CHOICES,
+        'secili_kategori': kategori,
+        'secili_tur': tur,
+        'arama_terimi': arama,
+    }
+    
+    return render(request, 'anasayfa/dizi-film-onerileri.html', context)
+
+def dizi_film_detay(request, pk):
+    dizi_film = get_object_or_404(DiziFilm, pk=pk)
+    # Benzer öneriler (aynı tür veya kategori)
+    benzer_oneriler = DiziFilm.objects.filter(
+        onerilen=True
+    ).filter(
+        tur=dizi_film.tur
+    ).exclude(
+        pk=dizi_film.pk
+    )[:3]
+    
+    context = {
+        'dizi_film': dizi_film,
+        'benzer_oneriler': benzer_oneriler,
+    }
+    
+    return render(request, 'anasayfa/dizi-film-detay.html', context)
+
 def ornek_sayfa(request):
     return render(request, 'anasayfa/ornek.html')
 
@@ -48,5 +97,6 @@ def test_view(request):
         <li><a href="/">Ana Sayfa</a></li>
         <li><a href="/oran-analizleri/">Oran Analizleri</a></li>
         <li><a href="/muhasebe-terimleri/">Muhasebe Terimleri</a></li>
+        <li><a href="/dizi-film-onerileri/">Dizi/Film Önerileri</a></li>
     </ul>
     """)

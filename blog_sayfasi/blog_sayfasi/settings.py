@@ -30,8 +30,8 @@ except ImportError:
 SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-)vnuui#-84$@z4wbz7v0z#g@y_0lz+af**06m-f_pq$!*zao5&")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Debug mode - environment variable'dan al
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# Debug mode - environment variable'dan al, development için geçici True
+DEBUG = True  # os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # Logging configuration for production debugging
 LOGGING = {
@@ -183,6 +183,10 @@ STATICFILES_FINDERS = [
 # Force static files to be served
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
+
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

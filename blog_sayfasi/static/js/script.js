@@ -1,1 +1,182 @@
-function toggleTheme(){const e=document.body,t=document.getElementById("theme-icon");"dark"===e.getAttribute("data-theme")?(e.removeAttribute("data-theme"),t.className="fas fa-moon"):(e.setAttribute("data-theme","dark"),t.className="fas fa-sun")}function updateScrollIndicator(){const e=window.pageYOffset,t=document.body.scrollHeight-window.innerHeight,o=e/t*100;document.querySelector(".scroll-indicator").style.width=o+"%"}function animateCounters(){document.querySelectorAll(".header-stat .number").forEach(e=>{const t=parseInt(e.getAttribute("data-target")),o=+e.innerText,n=t/100;o<t?(e.innerText=Math.ceil(o+n),setTimeout(()=>animateCounters(),30)):e.innerText=t})}function showAlert(e){const t={course:"Kapsamlı finansal eğitim programlarımız hakkında detaylı bilgi almak için iletişime geçin!",test:"Finansal bilginizi test etmek için interaktif sorularımız yakında hazır olacak!",consult:"Uzman finansal danışmanlarımızla görüşme planlamak için randevu alın!"};alert(t[e]||"Yakında daha fazla özellik eklenecek!")}window.addEventListener("scroll",updateScrollIndicator);const observerOptions={threshold:.1,rootMargin:"0px 0px -50px 0px"},observer=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(e.target.style.animation="fadeInUp 0.6s ease forwards")})},observerOptions);document.querySelectorAll(".card").forEach(e=>{observer.observe(e)});const headerObserver=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(setTimeout(animateCounters,500),headerObserver.unobserve(e.target))})},observerOptions);headerObserver.observe(document.querySelector(".header-stats")),document.querySelectorAll(".card").forEach(e=>{e.addEventListener("mouseenter",function(){this.style.transform="translateY(-15px) scale(1.02)",this.style.boxShadow="0 25px 50px rgba(0,0,0,0.15)"}),e.addEventListener("mouseleave",function(){this.style.transform="translateY(0) scale(1)",this.style.boxShadow="var(--shadow)"})}),document.documentElement.style.scrollBehavior="smooth",document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".floating-icon").forEach((e,t)=>{e.style.animationDelay=3*Math.random()+"s"}),document.querySelectorAll("button").forEach(e=>{e.addEventListener("click",function(e){const t=document.createElement("span"),o=this.getBoundingClientRect(),n=Math.max(o.width,o.height),r=e.clientX-o.left-n/2,s=e.clientY-o.top-n/2;t.style.cssText=`position:absolute;border-radius:50%;background:rgba(255,255,255,0.6);transform:scale(0);animation:ripple 0.6s linear;width:${n}px;height:${n}px;left:${r}px;top:${s}px;pointer-events:none`,this.appendChild(t),setTimeout(()=>{t.remove()},600)})}),document.querySelectorAll(".card").forEach(e=>{e.addEventListener("mousemove",function(e){const t=this.getBoundingClientRect(),o=e.clientX-t.left,n=e.clientY-t.top,r=t.width/2,s=t.height/2,a=(n-s)/10,i=(r-o)/10;this.style.transform=`translateY(-15px) rotateX(${a}deg) rotateY(${i}deg) scale(1.02)`}),e.addEventListener("mouseleave",function(){this.style.transform="translateY(0) rotateX(0) rotateY(0) scale(1)"})})}); 
+// Dark theme toggle
+function toggleTheme() {
+    const body = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+    
+    if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        themeIcon.className = 'fas fa-moon';
+    } else {
+        body.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
+    }
+}
+
+// Scroll indicator
+function updateScrollIndicator() {
+    const winScroll = window.pageYOffset;
+    const height = document.body.scrollHeight - window.innerHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.querySelector('.scroll-indicator').style.width = scrolled + '%';
+}
+
+// Animate counters
+function animateCounters() {
+    const counters = document.querySelectorAll('.header-stat .number');
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const current = +counter.innerText;
+        const increment = target / 100;
+        
+        if (current < target) {
+            counter.innerText = Math.ceil(current + increment);
+            setTimeout(animateCounters, 30);
+        } else {
+            counter.innerText = target;
+        }
+    });
+}
+
+// Show alerts
+function showAlert(type) {
+    const messages = {
+        course: 'Kapsamlı finansal eğitim programlarımız hakkında detaylı bilgi almak için iletişime geçin!',
+        test: 'Finansal bilginizi test etmek için interaktif sorularımız yakında hazır olacak!',
+        consult: 'Uzman finansal danışmanlarımızla görüşme planlamak için randevu alın!',
+        suggest: 'Dizi/film önerilerinizi Instagram veya Twitter hesaplarımızdan paylaşabilirsiniz!'
+    };
+    
+    alert(messages[type] || 'Yakında daha fazla özellik eklenecek!');
+}
+
+// Event listeners
+window.addEventListener('scroll', updateScrollIndicator);
+
+// Intersection Observer for animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+        }
+    });
+}, observerOptions);
+
+// Observe cards
+document.querySelectorAll('.card').forEach(card => {
+    observer.observe(card);
+});
+
+// Header stats observer
+const headerObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            setTimeout(animateCounters, 500);
+            headerObserver.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+const headerStats = document.querySelector('.header-stats');
+if (headerStats) {
+    headerObserver.observe(headerStats);
+}
+
+// Card hover effects
+document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-15px) scale(1.02)';
+        this.style.boxShadow = '0 25px 50px rgba(0,0,0,0.15)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+        this.style.boxShadow = 'var(--shadow)';
+    });
+});
+
+// Smooth scrolling
+document.documentElement.style.scrollBehavior = 'smooth';
+
+// DOM Content Loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate floating icons
+    document.querySelectorAll('.floating-icon').forEach((icon, index) => {
+        icon.style.animationDelay = Math.random() * 3 + 's';
+    });
+    
+    // Button ripple effect
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.6);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                pointer-events: none;
+            `;
+            
+            this.appendChild(ripple);
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // Card 3D effect
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 10;
+            const rotateY = (centerX - x) / 10;
+            
+            this.style.transform = `translateY(-15px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) rotateX(0) rotateY(0) scale(1)';
+        });
+    });
+});
+
+// CSS animation keyframes
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style); 
