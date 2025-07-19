@@ -45,5 +45,6 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     if settings.STATICFILES_DIRS:
         urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
-    # Media files için URL patterns
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Media files için URL patterns - Her durumda çalışır (development & production)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

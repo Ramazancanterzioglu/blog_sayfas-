@@ -275,6 +275,9 @@ def test_view(request):
     <h2>Manual Superuser Creation:</h2>
     <p><a href="/create-superuser/" style="background: #007cba; color: white; padding: 10px; text-decoration: none;">🔑 Create/Update Superuser</a></p>
     
+    <h2>Media Files Test:</h2>
+    <p><a href="/media-test/" style="background: #28a745; color: white; padding: 10px; text-decoration: none;">📁 Media Files Debug</a></p>
+    
     <h2>Test Linkleri:</h2>
     <ul>
         <li><a href="/">Ana Sayfa</a></li>
@@ -435,6 +438,110 @@ def create_superuser_view(request):
     html_output += """
     <hr>
     <p><a href="/test/">🧪 Test Page</a> | <a href="/">🏠 Ana Sayfa</a></p>
+    """
+    
+    return HttpResponse(html_output)
+
+def media_test_view(request):
+    """Media files test view'ı"""
+    from django.conf import settings
+    from .models import DiziFilm
+    import os
+    
+    html_output = "<h1>📁 Media Files Test</h1>"
+    
+    # Settings bilgileri
+    html_output += f"""
+    <h2>⚙️ Media Settings:</h2>
+    <ul>
+        <li><strong>MEDIA_URL:</strong> {settings.MEDIA_URL}</li>
+        <li><strong>MEDIA_ROOT:</strong> {settings.MEDIA_ROOT}</li>
+        <li><strong>DEBUG:</strong> {settings.DEBUG}</li>
+        <li><strong>RENDER env:</strong> {'RENDER' in os.environ}</li>
+    </ul>
+    """
+    
+    # Media dizin kontrolü
+    try:
+        if os.path.exists(settings.MEDIA_ROOT):
+            html_output += f"<h3>✅ Media Root Exists: {settings.MEDIA_ROOT}</h3>"
+            
+            # Permissions check
+            readable = os.access(settings.MEDIA_ROOT, os.R_OK)
+            writable = os.access(settings.MEDIA_ROOT, os.W_OK)
+            html_output += f"<p>Readable: {readable}, Writable: {writable}</p>"
+            
+            # List files
+            try:
+                files = os.listdir(settings.MEDIA_ROOT)
+                html_output += f"<h4>Files in MEDIA_ROOT ({len(files)}):</h4><ul>"
+                for file in files:
+                    file_path = os.path.join(settings.MEDIA_ROOT, file)
+                    if os.path.isdir(file_path):
+                        # List subdirectory
+                        sub_files = os.listdir(file_path)
+                        html_output += f"<li><strong>{file}/</strong> ({len(sub_files)} files)<ul>"
+                        for sub_file in sub_files[:5]:  # Show max 5 files
+                            sub_path = os.path.join(file_path, sub_file)
+                            file_size = os.path.getsize(sub_path) if os.path.isfile(sub_path) else 0
+                            html_output += f"<li>{sub_file} ({file_size} bytes)</li>"
+                        if len(sub_files) > 5:
+                            html_output += f"<li>... and {len(sub_files) - 5} more files</li>"
+                        html_output += "</ul></li>"
+                    else:
+                        file_size = os.path.getsize(file_path)
+                        html_output += f"<li>{file} ({file_size} bytes)</li>"
+                html_output += "</ul>"
+            except Exception as e:
+                html_output += f"<p>❌ Error listing files: {str(e)}</p>"
+        else:
+            html_output += f"<h3>❌ Media Root Not Found: {settings.MEDIA_ROOT}</h3>"
+    except Exception as e:
+        html_output += f"<h3>❌ Error checking Media Root: {str(e)}</h3>"
+    
+    # Database test
+    try:
+        dizi_filmler = DiziFilm.objects.all()[:3]
+        html_output += f"<h2>🎬 DiziFilm Objects ({DiziFilm.objects.count()}):</h2>"
+        
+        for item in dizi_filmler:
+            html_output += f"""
+            <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                <h4>{item.isim}</h4>
+                <p><strong>Fotoğraf field:</strong> {item.fotograf}</p>
+                <p><strong>Fotoğraf path:</strong> {item.fotograf.path if item.fotograf else 'No image'}</p>
+                <p><strong>Fotoğraf URL:</strong> {item.fotograf.url if item.fotograf else 'No image'}</p>
+                
+                {"<p><strong>File exists:</strong> " + str(os.path.exists(item.fotograf.path)) + "</p>" if item.fotograf else "<p>No image file</p>"}
+                
+                {f'<p><strong>File size:</strong> {os.path.getsize(item.fotograf.path)} bytes</p>' if item.fotograf and os.path.exists(item.fotograf.path) else ''}
+                
+                <p><strong>Full URL Test:</strong> 
+                   <a href="{item.fotograf.url if item.fotograf else '#'}" target="_blank">
+                       {item.fotograf.url if item.fotograf else 'No URL'}
+                   </a>
+                </p>
+                
+                {f'<img src="{item.fotograf.url}" alt="{item.isim}" style="max-width: 200px; max-height: 150px;">' if item.fotograf else '<p>No image to display</p>'}
+            </div>
+            """
+            
+    except Exception as e:
+        html_output += f"<h3>❌ Database Error: {str(e)}</h3>"
+    
+    # URL test
+    html_output += f"""
+    <h2>🔗 URL Tests:</h2>
+    <ul>
+        <li>Media URL Test: <a href="{settings.MEDIA_URL}" target="_blank">{settings.MEDIA_URL}</a></li>
+        <li>Sample image URL: <a href="{settings.MEDIA_URL}dizi_film/interstellar-yildizlararasi-cekildigi-yerler-nerede-cekildi.webp" target="_blank">
+            {settings.MEDIA_URL}dizi_film/interstellar-yildizlararasi-cekildigi-yerler-nerede-cekildi.webp</a></li>
+    </ul>
+    """
+    
+    html_output += """
+    <hr>
+    <p><a href="/test/">🧪 Main Test Page</a> | <a href="/dizi-film-onerileri/">🎬 Dizi Film Önerileri</a> | <a href="/">🏠 Ana Sayfa</a></p>
     """
     
     return HttpResponse(html_output)

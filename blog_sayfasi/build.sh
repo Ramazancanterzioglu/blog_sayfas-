@@ -74,6 +74,17 @@ echo "Creating superuser if needed..."
 echo "Setting up Render environment..."
 python manage.py setup_render
 
+echo "Copying media files to production location..."
+# Render'da media files'ı production konumuna kopyala
+if [ -d "media" ]; then
+    echo "Local media directory found, copying to production..."
+    mkdir -p /tmp/media
+    cp -r media/* /tmp/media/ 2>/dev/null || echo "No files to copy or copy failed"
+    echo "Media files copied to /tmp/media/"
+else
+    echo "No local media directory found"
+fi
+
 echo "Collecting static files..."
 python manage.py collectstatic --no-input --clear
 

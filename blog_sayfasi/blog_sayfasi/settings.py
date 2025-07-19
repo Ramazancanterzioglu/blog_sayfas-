@@ -31,7 +31,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-)vnuui#-84$@z4wbz7v0z
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Debug mode - environment variable'dan al
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'  # Local için default True
+
+# Local development için RENDER olmadığında DEBUG'ı zorla True yap
+if 'RENDER' not in os.environ:
+    DEBUG = True
+    print("🔧 Local development: DEBUG = True")
 
 # Logging configuration for production debugging
 LOGGING = {
@@ -253,10 +258,38 @@ STATICFILES_FINDERS = [
 # Force static files to be served
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
+WHITENOISE_MAX_AGE = 31536000  # 1 year
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png', 'gif', 'svg']
 
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Production media files configuration for Render
+if 'RENDER' in os.environ:
+    # Media files için daha persistent bir konum dene
+    import tempfile
+    
+    # Try to use a more persistent location for media files
+    media_dirs = ['/opt/render/project/src/media', '/tmp/media', os.path.join(BASE_DIR, 'media')]
+    media_path = None
+    
+    for media_dir in media_dirs:
+        try:
+            if not os.path.exists(media_dir):
+                os.makedirs(media_dir, exist_ok=True)
+            if os.access(media_dir, os.W_OK):
+                media_path = media_dir
+                break
+        except Exception as e:
+            print(f"Media dir test failed for {media_dir}: {str(e)}")
+            continue
+    
+    if media_path:
+        MEDIA_ROOT = media_path
+        print(f"📁 Media files konumu: {MEDIA_ROOT}")
+    else:
+        print("⚠️ Media files için yazılabilir konum bulunamadı")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
