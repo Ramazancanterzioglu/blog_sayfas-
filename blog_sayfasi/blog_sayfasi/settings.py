@@ -56,6 +56,10 @@ LOGGING = {
 
 ALLOWED_HOSTS = ['*']  # Geçici olarak tüm hostname'lere izin ver
 
+# Development server için
+if 'RENDER' in os.environ:
+    ALLOWED_HOSTS = ['*']
+
 # Render.com hostname ayarları
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:

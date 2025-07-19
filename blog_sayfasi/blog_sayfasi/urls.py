@@ -19,10 +19,23 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
 
+# Test view - Django'nun çalışıp çalışmadığını kontrol et
+def root_test(request):
+    return HttpResponse("""
+    <h1>🎉 DJANGO ÇALIŞIYOR!</h1>
+    <p>Bu Render.com'da çalışan Django uygulamasıdır.</p>
+    <h2>Test Linkleri:</h2>
+    <ul>
+        <li><a href="/test/">Detaylı Test</a></li>
+        <li><a href="/admin/">Admin Panel</a></li>
+    </ul>
+    """)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('root-test/', root_test, name='root_test'),
     path('', include('anasayfa.urls')),
 ]
 
@@ -30,4 +43,5 @@ urlpatterns = [
 # Static files (CSS, JavaScript, Images) için URL patterns ekle
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    if settings.STATICFILES_DIRS:
+        urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

@@ -1,15 +1,13 @@
 services:
   - type: web
-    name: blog_sayfasi
+    name: blog-sayfasi
     env: python
-    region: oregon
-    plan: free
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn blog_sayfasi.wsgi:application --bind 0.0.0.0:$PORT"
-    envVars:
-      - key: SECRET_KEY
-        generateValue: true
-      - key: RENDER
-        value: true
-      - key: DEBUG
-        value: true 
+    buildCommand: "pip install -r requirements.txt && python simple_test.py && python manage.py collectstatic --no-input"
+    startCommand: "python manage.py runserver 0.0.0.0:$PORT"
+          envVars:
+        - key: DEBUG
+          value: true
+        - key: SECRET_KEY
+          generateValue: true
+        - key: RENDER
+          value: true 

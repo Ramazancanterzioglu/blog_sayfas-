@@ -22,5 +22,3 @@ echo "Running migrations..."
 python manage.py migrate
 
 echo "=== BUILD TAMAMLANDI ===" 
-
-python manage.py runserver 
