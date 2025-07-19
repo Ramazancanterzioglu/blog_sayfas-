@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.conf import settings
-from .models import DiziFilm
+from .models import DiziFilm, GeziBlog
 import os
+from django.db import models
 
 def anasayfa(request):
     # Debug için template path kontrolü
@@ -159,6 +160,151 @@ def dizi_film_detay(request, pk):
                 'error_message': 'İçerik yüklenirken bir hata oluştu.'
             })
 
+def gezi_blog_onerileri(request):
+    try:
+        # Tüm önerilen gezi bloglarını getir
+        gezi_bloglari = GeziBlog.objects.filter(onerilen=True).order_by('-olusturma_tarihi')
+        
+        # Kategori filtreleme
+        kategori = request.GET.get('kategori')
+        if kategori:
+            gezi_bloglari = gezi_bloglari.filter(kategori=kategori)
+        
+        # Şehir filtreleme
+        sehir = request.GET.get('sehir')
+        if sehir:
+            gezi_bloglari = gezi_bloglari.filter(sehir__icontains=sehir)
+        
+        # Puan filtreleme
+        puan = request.GET.get('puan')
+        if puan:
+            gezi_bloglari = gezi_bloglari.filter(puanim__gte=puan)
+        
+        # Arama
+        arama = request.GET.get('arama')
+        if arama:
+            gezi_bloglari = gezi_bloglari.filter(
+                models.Q(yer_adi__icontains=arama) | 
+                models.Q(sehir__icontains=arama) |
+                models.Q(kisa_aciklama__icontains=arama)
+            )
+        
+        # Şehirler listesi (filtreleme için)
+        sehirler = GeziBlog.objects.filter(onerilen=True).values_list('sehir', flat=True).distinct().order_by('sehir')
+        
+        context = {
+            'gezi_bloglari': gezi_bloglari,
+            'kategori_choices': GeziBlog.KATEGORI_CHOICES,
+            'puan_choices': GeziBlog.PUAN_CHOICES,
+            'sehirler': sehirler,
+            'secili_kategori': kategori,
+            'secili_sehir': sehir,
+            'secili_puan': puan,
+            'arama_terimi': arama,
+        }
+        
+        return render(request, 'anasayfa/gezi-blog-onerileri.html', context)
+        
+    except Exception as e:
+        from django.conf import settings
+        import traceback
+        
+        error_details = f"""
+        <h1>🗺️ Gezi Blog Önerileri Debug</h1>
+        <h2>Hata Detayları:</h2>
+        <p><strong>Hata:</strong> {str(e)}</p>
+        <p><strong>Hata Türü:</strong> {type(e).__name__}</p>
+        
+        <h3>Traceback:</h3>
+        <pre style="background: #f5f5f5; padding: 1rem; overflow: auto;">
+{traceback.format_exc()}
+        </pre>
+        
+        <h3>Database Test:</h3>
+        """
+        
+        # Database test
+        try:
+            from django.db import connection
+            cursor = connection.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='anasayfa_geziblog';")
+            table_exists = cursor.fetchone()
+            
+            if table_exists:
+                error_details += "<p>✅ anasayfa_geziblog tablosu mevcut</p>"
+                try:
+                    GeziBlog.objects.count()
+                    error_details += "<p>✅ GeziBlog model'i çalışıyor</p>"
+                except Exception as model_e:
+                    error_details += f"<p>❌ GeziBlog model hatası: {str(model_e)}</p>"
+            else:
+                error_details += "<p>❌ anasayfa_geziblog tablosu yok - migration gerekli</p>"
+                
+        except Exception as db_e:
+            error_details += f"<p>❌ Database test hatası: {str(db_e)}</p>"
+        
+        error_details += """
+        <hr>
+        <p><a href="/test/">System Test</a> | <a href="/">Ana Sayfa</a></p>
+        """
+        
+        if settings.DEBUG:
+            return HttpResponse(error_details)
+        else:
+            # Production'da generic error page
+            return render(request, 'anasayfa/index.html', {
+                'error_message': 'Gezi blog önerileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.'
+            })
+
+def gezi_blog_detay(request, pk):
+    try:
+        gezi_blog = get_object_or_404(GeziBlog, pk=pk)
+        # Benzer öneriler (aynı şehir veya kategori)
+        benzer_oneriler = GeziBlog.objects.filter(
+            onerilen=True
+        ).filter(
+            models.Q(sehir=gezi_blog.sehir) | models.Q(kategori=gezi_blog.kategori)
+        ).exclude(
+            pk=gezi_blog.pk
+        )[:3]
+        
+        context = {
+            'gezi_blog': gezi_blog,
+            'benzer_oneriler': benzer_oneriler,
+        }
+        
+        return render(request, 'anasayfa/gezi-blog-detay.html', context)
+        
+    except GeziBlog.DoesNotExist:
+        from django.conf import settings
+        if settings.DEBUG:
+            return HttpResponse(f"""
+            <h1>Gezi Blog Bulunamadı</h1>
+            <p>ID: {pk} olan gezi blog bulunamadı.</p>
+            <p><a href="/gezi-blog-onerileri/">Gezi Blog Önerileri</a></p>
+            <p><a href="/">Ana Sayfa</a></p>
+            """)
+        else:
+            return render(request, 'anasayfa/gezi-blog-onerileri.html', {
+                'error_message': 'Aradığınız gezi blogu bulunamadı.'
+            })
+    except Exception as e:
+        from django.conf import settings
+        if settings.DEBUG:
+            return HttpResponse(f"""
+            <h1>Gezi Blog Detay Sayfası Hatası</h1>
+            <p><strong>Hata:</strong> {str(e)}</p>
+            <p><strong>Hata Türü:</strong> {type(e).__name__}</p>
+            <p><strong>ID:</strong> {pk}</p>
+            <hr>
+            <p><a href="/gezi-blog-onerileri/">Gezi Blog Önerileri</a></p>
+            <p><a href="/">Ana Sayfa</a></p>
+            """)
+        else:
+            return render(request, 'anasayfa/gezi-blog-onerileri.html', {
+                'error_message': 'İçerik yüklenirken bir hata oluştu.'
+            })
+
 def ornek_sayfa(request):
     return render(request, 'anasayfa/ornek.html')
 
@@ -277,6 +423,9 @@ def test_view(request):
     
     <h2>Media Files Test:</h2>
     <p><a href="/media-test/" style="background: #28a745; color: white; padding: 10px; text-decoration: none;">📁 Media Files Debug</a></p>
+    
+    <h2>Cloudinary Test:</h2>
+    <p><a href="/cloudinary-test/" style="background: #17a2b8; color: white; padding: 10px; text-decoration: none;">☁️ Cloudinary Storage Test</a></p>
     
     <h2>Test Linkleri:</h2>
     <ul>
@@ -542,6 +691,96 @@ def media_test_view(request):
     html_output += """
     <hr>
     <p><a href="/test/">🧪 Main Test Page</a> | <a href="/dizi-film-onerileri/">🎬 Dizi Film Önerileri</a> | <a href="/">🏠 Ana Sayfa</a></p>
+    """
+    
+    return HttpResponse(html_output)
+
+def cloudinary_test_view(request):
+    """Cloudinary bağlantısını test eder"""
+    from django.conf import settings
+    import os
+    
+    html_output = "<h1>☁️ Cloudinary Test</h1>"
+    
+    # Environment variables check
+    html_output += f"""
+    <h2>🔑 Environment Variables:</h2>
+    <ul>
+        <li><strong>CLOUDINARY_CLOUD_NAME:</strong> {os.environ.get('CLOUDINARY_CLOUD_NAME', 'NOT SET')}</li>
+        <li><strong>CLOUDINARY_API_KEY:</strong> {os.environ.get('CLOUDINARY_API_KEY', 'NOT SET')}</li>
+        <li><strong>CLOUDINARY_API_SECRET:</strong> {'SET' if os.environ.get('CLOUDINARY_API_SECRET') else 'NOT SET'}</li>
+        <li><strong>RENDER env:</strong> {'RENDER' in os.environ}</li>
+    </ul>
+    """
+    
+    # Settings check
+    try:
+        cloudinary_available = hasattr(settings, 'CLOUDINARY_STORAGE')
+        html_output += f"<h3>📋 Settings:</h3>"
+        html_output += f"<p>CLOUDINARY_AVAILABLE: {getattr(settings, 'CLOUDINARY_AVAILABLE', False)}</p>"
+        html_output += f"<p>DEFAULT_FILE_STORAGE: {getattr(settings, 'DEFAULT_FILE_STORAGE', 'Not set')}</p>"
+        
+        if cloudinary_available:
+            cloudinary_config = getattr(settings, 'CLOUDINARY_STORAGE', {})
+            html_output += f"<p>Cloud Name: {cloudinary_config.get('CLOUD_NAME', 'Not set')}</p>"
+            html_output += f"<p>API Key: {cloudinary_config.get('API_KEY', 'Not set')}</p>"
+            html_output += f"<p>Secure: {cloudinary_config.get('SECURE', False)}</p>"
+    except Exception as e:
+        html_output += f"<p>❌ Settings error: {str(e)}</p>"
+    
+    # Cloudinary connection test
+    try:
+        import cloudinary
+        import cloudinary.api
+        
+        # Test API connection
+        html_output += f"<h3>🌐 Connection Test:</h3>"
+        
+        # Get account info
+        try:
+            result = cloudinary.api.ping()
+            html_output += f"<p>✅ Cloudinary Ping: {result}</p>"
+            
+            # Get usage info
+            usage = cloudinary.api.usage()
+            html_output += f"<p>📊 Storage used: {usage.get('credits', {}).get('usage', 0)} / {usage.get('credits', {}).get('limit', 0)}</p>"
+            html_output += f"<p>📊 Bandwidth used: {usage.get('bandwidth', {}).get('usage', 0)} / {usage.get('bandwidth', {}).get('limit', 0)}</p>"
+            
+        except Exception as api_e:
+            html_output += f"<p>❌ API connection failed: {str(api_e)}</p>"
+            html_output += f"<p>💡 Bu normal - Cloudinary ayarları henüz yapılmamış olabilir</p>"
+            
+    except ImportError:
+        html_output += f"<p>❌ Cloudinary paketleri yüklenmemiş</p>"
+    except Exception as e:
+        html_output += f"<p>❌ Cloudinary test error: {str(e)}</p>"
+    
+    # Instructions
+    html_output += f"""
+    <h2>🚀 Cloudinary Kurulum Adımları:</h2>
+    <ol>
+        <li><strong>Cloudinary hesabı açın:</strong> <a href="https://cloudinary.com" target="_blank">cloudinary.com</a></li>
+        <li><strong>Dashboard'dan şu bilgileri alın:</strong>
+            <ul>
+                <li>Cloud Name</li>
+                <li>API Key</li>
+                <li>API Secret</li>
+            </ul>
+        </li>
+        <li><strong>Render Environment Variables'a ekleyin:</strong>
+            <ul>
+                <li>CLOUDINARY_CLOUD_NAME</li>
+                <li>CLOUDINARY_API_KEY</li>
+                <li>CLOUDINARY_API_SECRET</li>
+            </ul>
+        </li>
+        <li><strong>Deploy edin</strong></li>
+    </ol>
+    """
+    
+    html_output += """
+    <hr>
+    <p><a href="/test/">🧪 Main Test</a> | <a href="/media-test/">📁 Media Test</a> | <a href="/">🏠 Ana Sayfa</a></p>
     """
     
     return HttpResponse(html_output)

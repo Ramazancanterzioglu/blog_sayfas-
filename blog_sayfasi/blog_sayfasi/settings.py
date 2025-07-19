@@ -22,6 +22,15 @@ try:
 except ImportError:
     dj_database_url = None
 
+# Cloudinary import
+try:
+    import cloudinary
+    import cloudinary.uploader
+    import cloudinary.api
+    CLOUDINARY_AVAILABLE = True
+except ImportError:
+    CLOUDINARY_AVAILABLE = False
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -120,6 +129,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cloudinary_storage",
+    "cloudinary", 
     "anasayfa",
 ]
 
@@ -260,6 +271,39 @@ WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 WHITENOISE_MAX_AGE = 31536000  # 1 year
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png', 'gif', 'svg']
+
+# =============================================================================
+# CLOUDINARY CONFIGURATION - Persistent Media Storage
+# =============================================================================
+if CLOUDINARY_AVAILABLE:
+    # Cloudinary configuration
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+        'SECURE': True,  # HTTPS kullan
+    }
+
+    # Cloudinary configure
+    cloudinary.config(
+        cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+        api_key=CLOUDINARY_STORAGE['API_KEY'],
+        api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+        secure=True
+    )
+    
+    # Media storage backend - Production'da Cloudinary kullan
+    if 'RENDER' in os.environ and all([
+        CLOUDINARY_STORAGE['CLOUD_NAME'],
+        CLOUDINARY_STORAGE['API_KEY'], 
+        CLOUDINARY_STORAGE['API_SECRET']
+    ]):
+        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+        print("🌩️ Cloudinary storage aktif")
+    else:
+        print("⚠️ Cloudinary ayarları eksik - local storage kullanılıyor")
+else:
+    print("⚠️ Cloudinary paketleri bulunamadı")
 
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'

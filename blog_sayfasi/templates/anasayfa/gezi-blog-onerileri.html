@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dizi Film Önerileri - En İyi Diziler ve Filmler</title>
+    <title>Gezi Blog Önerileri - En İyi Gezilecek Yerler</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
@@ -15,18 +15,18 @@
     </button>
     
     <div class="floating-elements">
-        <i class="fas fa-video floating-icon" style="font-size: 3rem;"></i>
-        <i class="fas fa-film floating-icon" style="font-size: 2.5rem;"></i>
-        <i class="fas fa-tv floating-icon" style="font-size: 2rem;"></i>
-        <i class="fas fa-play-circle floating-icon" style="font-size: 2.8rem;"></i>
-        <i class="fas fa-theater-masks floating-icon" style="font-size: 2.2rem;"></i>
+        <i class="fas fa-map-marked-alt floating-icon" style="font-size: 3rem;"></i>
+        <i class="fas fa-mountain floating-icon" style="font-size: 2.5rem;"></i>
+        <i class="fas fa-camera floating-icon" style="font-size: 2rem;"></i>
+        <i class="fas fa-compass floating-icon" style="font-size: 2.8rem;"></i>
+        <i class="fas fa-route floating-icon" style="font-size: 2.2rem;"></i>
         <i class="fas fa-star floating-icon" style="font-size: 2.6rem;"></i>
     </div>
     
     <header class="header">
         <div class="header-content">
-            <h1><i class="fas fa-video"></i> Dizi Film Önerileri</h1>
-            <p>Kaliteli vakit geçirmek için özenle seçilmiş dizi ve film önerileri</p>
+            <h1><i class="fas fa-map-marked-alt"></i> Gezi Blog Önerileri</h1>
+            <p>Deneyimlediğim yerler ve gezi tavsiyelerim</p>
             
             <!-- Sosyal Medya Linkleri -->
             <div class="social-links">
@@ -41,17 +41,17 @@
             </div>
             
             <div class="header-stats">
-                                 <div class="header-stat">
-                     <span class="number" data-target="{% if dizi_filmler %}{{ dizi_filmler.count }}{% else %}0{% endif %}">0</span>
-                     <span class="label">Öneri</span>
-                 </div>
+                <div class="header-stat">
+                    <span class="number" data-target="{% if gezi_bloglari %}{{ gezi_bloglari.count }}{% else %}0{% endif %}">0</span>
+                    <span class="label">Gezi</span>
+                </div>
                 <div class="header-stat">
                     <span class="number" data-target="{{ kategori_choices|length }}">0</span>
                     <span class="label">Kategori</span>
                 </div>
                 <div class="header-stat">
-                    <span class="number" data-target="{{ tur_choices|length }}">0</span>
-                    <span class="label">Tür</span>
+                    <span class="number" data-target="{{ sehirler|length }}">0</span>
+                    <span class="label">Şehir</span>
                 </div>
             </div>
         </div>
@@ -85,11 +85,23 @@
                         </div>
                         
                         <div class="filter-group">
-                            <label for="tur">Tür:</label>
-                            <select name="tur" id="tur">
+                            <label for="sehir">Şehir:</label>
+                            <select name="sehir" id="sehir">
                                 <option value="">Tümü</option>
-                                {% for key, value in tur_choices %}
-                                    <option value="{{ key }}" {% if secili_tur == key %}selected{% endif %}>
+                                {% for sehir in sehirler %}
+                                    <option value="{{ sehir }}" {% if secili_sehir == sehir %}selected{% endif %}>
+                                        {{ sehir }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="puan">Min. Puan:</label>
+                            <select name="puan" id="puan">
+                                <option value="">Tümü</option>
+                                {% for key, value in puan_choices %}
+                                    <option value="{{ key }}" {% if secili_puan == key|stringformat:"s" %}selected{% endif %}>
                                         {{ value }}
                                     </option>
                                 {% endfor %}
@@ -98,7 +110,7 @@
                         
                         <div class="filter-group">
                             <label for="arama">Ara:</label>
-                            <input type="text" name="arama" id="arama" placeholder="Dizi/Film adı..." 
+                            <input type="text" name="arama" id="arama" placeholder="Yer adı, şehir..." 
                                    value="{{ arama_terimi|default:'' }}">
                         </div>
                         
@@ -106,7 +118,7 @@
                             <button type="submit" class="filter-btn">
                                 <i class="fas fa-search"></i> Filtrele
                             </button>
-                            <a href="{% url 'dizi_film_onerileri' %}" class="clear-btn">
+                            <a href="{% url 'gezi_blog_onerileri' %}" class="clear-btn">
                                 <i class="fas fa-times"></i> Temizle
                             </a>
                         </div>
@@ -115,57 +127,60 @@
             </div>
         </div>
 
-        <!-- Dizi/Film Kartları -->
-        {% if dizi_filmler and dizi_filmler.count > 0 %}
+        <!-- Gezi Blog Kartları -->
+        {% if gezi_bloglari and gezi_bloglari.count > 0 %}
             <div class="category-section muhasebe-category">
                 <div class="category-header">
-                    <h2><i class="fas fa-star"></i> Önerilen Dizi ve Filmler</h2>
-                    <p>{% if secili_kategori or secili_tur or arama_terimi %}Filtrelenmiş{% else %}Tüm{% endif %} önerilerimiz</p>
+                    <h2><i class="fas fa-map-pin"></i> Gezi Blog Önerilerim</h2>
+                    <p>{% if secili_kategori or secili_sehir or secili_puan or arama_terimi %}Filtrelenmiş{% else %}Tüm{% endif %} gezi deneyimlerim</p>
                 </div>
                 
                 <div class="cards-grid dizi-film-grid">
-                    {% for item in dizi_filmler %}
+                    {% for gezi in gezi_bloglari %}
                         <div class="card dizi-film-card">
                             <div class="card-image">
-                                {% if item.fotograf %}
-                                    <img src="{{ item.fotograf.url }}" alt="{{ item.isim }}">
+                                {% if gezi.fotograf %}
+                                    <img src="{{ gezi.fotograf.url }}" alt="{{ gezi.yer_adi }}">
                                 {% else %}
                                     <div class="no-image">
-                                        <i class="fas fa-{% if item.kategori == 'dizi' %}tv{% else %}film{% endif %}"></i>
+                                        <i class="fas fa-map-marked-alt"></i>
                                     </div>
                                 {% endif %}
                                 <div class="card-overlay">
-                                    <span class="category-badge {{ item.kategori }}">{{ item.get_kategori_display }}</span>
-                                    {% if item.imdb_puani %}
-                                        <span class="rating-badge">
-                                            <i class="fas fa-star"></i> {{ item.imdb_puani }}
-                                        </span>
-                                    {% endif %}
+                                    <span class="category-badge {{ gezi.kategori }}">{{ gezi.get_kategori_display }}</span>
+                                    <span class="rating-badge">
+                                        {{ gezi.get_puan_yildiz }}
+                                    </span>
                                 </div>
                             </div>
                             
                             <div class="card-content">
-                                <h3>{{ item.isim }}</h3>
+                                <h3>{{ gezi.yer_adi }}</h3>
                                 <div class="card-meta">
-                                    <span class="genre"><i class="fas fa-tag"></i> {{ item.get_tur_display }}</span>
-                                    <span class="year"><i class="fas fa-calendar"></i> {{ item.yayın_yili }}</span>
-                                    <span class="duration"><i class="fas fa-clock"></i> {{ item.sure }}</span>
+                                    <span class="genre"><i class="fas fa-map-pin"></i> {{ gezi.sehir }}</span>
+                                    <span class="year"><i class="fas fa-calendar"></i> {{ gezi.ziyaret_tarihi|date:"M Y" }}</span>
+                                    <span class="duration"><i class="fas fa-leaf"></i> {{ gezi.get_en_iyi_mevsim_display }}</span>
                                 </div>
                                 
-                                <p class="description">{{ item.tanim|truncatewords:20 }}</p>
+                                <p class="description">{{ gezi.kisa_aciklama|truncatewords:20 }}</p>
                                 
                                 <div class="admin-comment">
-                                    <strong>💭 Admin Yorumu:</strong>
-                                    <p>{{ item.admin_yorumu|truncatewords:15 }}</p>
+                                    <strong>💰 Maliyet:</strong>
+                                    <p>{{ gezi.maliyet }}</p>
                                 </div>
                                 
-                                <a href="{% url 'dizi_film_detay' item.pk %}" class="card-link">
+                                <div class="admin-comment">
+                                    <strong>💭 Tavsiyelerim:</strong>
+                                    <p>{{ gezi.tavsiyeler|truncatewords:15 }}</p>
+                                </div>
+                                
+                                <a href="{% url 'gezi_blog_detay' gezi.pk %}" class="card-link">
                                     <i class="fas fa-info-circle"></i> Detayları Gör
                                 </a>
                             </div>
                             
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: {% if item.imdb_puani %}{{ item.imdb_puani|floatformat:0|add:'0' }}%{% else %}75%{% endif %};"></div>
+                                <div class="progress-fill" style="width: {{ gezi.get_puan_yuzde }}%;"></div>
                             </div>
                         </div>
                     {% endfor %}
@@ -176,8 +191,8 @@
                 <div class="no-results-content">
                     <i class="fas fa-search"></i>
                     <h3>Sonuç Bulunamadı</h3>
-                    <p>Aradığınız kriterlere uygun dizi/film bulunamadı. Farklı filtreler deneyebilirsiniz.</p>
-                    <a href="{% url 'dizi_film_onerileri' %}" class="cta-button">
+                    <p>Aradığınız kriterlere uygun gezi blogu bulunamadı. Farklı filtreler deneyebilirsiniz.</p>
+                    <a href="{% url 'gezi_blog_onerileri' %}" class="cta-button">
                         <i class="fas fa-refresh"></i> Tümünü Görüntüle
                     </a>
                 </div>
@@ -186,23 +201,20 @@
 
         <!-- CTA Section -->
         <div class="cta-section">
-            <h2>Önerilerinizi Paylaşın</h2>
-            <p>İzlediğiniz güzel dizi ve filmler varsa, sosyal medya hesaplarımızdan bize önerebilirsiniz!</p>
+            <h2>Gezi Önerilerinizi Paylaşın</h2>
+            <p>Gittiğiniz güzel yerler varsa, sosyal medya hesaplarımızdan bize önerebilirsiniz!</p>
             <div class="cta-buttons">
                 <button class="cta-button" onclick="window.location.href='{% url 'anasayfa' %}'">
                     <i class="fas fa-home"></i> Ana Sayfa
                 </button>
-                <button class="cta-button" onclick="window.location.href='{% url 'gezi_blog_onerileri' %}'">
-                    <i class="fas fa-map-marked-alt"></i> Gezi Blog
+                <button class="cta-button" onclick="window.location.href='{% url 'dizi_film_onerileri' %}'">
+                    <i class="fas fa-video"></i> Dizi/Film Önerileri
                 </button>
                 <button class="cta-button" onclick="window.location.href='{% url 'muhasebe_terimleri' %}'">
                     <i class="fas fa-calculator"></i> Muhasebe Terimleri
                 </button>
                 <button class="cta-button" onclick="window.location.href='{% url 'oran_analizleri' %}'">
                     <i class="fas fa-chart-pie"></i> Oran Analizleri
-                </button>
-                <button class="cta-button" onclick="showAlert('suggest')">
-                    <i class="fas fa-lightbulb"></i> Öneri Gönder
                 </button>
             </div>
         </div>

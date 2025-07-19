@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ gezi_blog.yer_adi }} - {{ gezi_blog.sehir }} | Gezi Blog</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="scroll-indicator"></div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+    
+    <div class="floating-elements">
+        <i class="fas fa-map-marked-alt floating-icon" style="font-size: 3rem;"></i>
+        <i class="fas fa-mountain floating-icon" style="font-size: 2.5rem;"></i>
+        <i class="fas fa-camera floating-icon" style="font-size: 2rem;"></i>
+        <i class="fas fa-compass floating-icon" style="font-size: 2.8rem;"></i>
+        <i class="fas fa-star floating-icon" style="font-size: 2.6rem;"></i>
+    </div>
+    
+    <header class="header detail-header">
+        <div class="header-content">
+            <h1><i class="fas fa-map-pin"></i> {{ gezi_blog.yer_adi }}</h1>
+            <p>{{ gezi_blog.sehir }} - {{ gezi_blog.get_kategori_display }} - {{ gezi_blog.ziyaret_tarihi|date:"F Y" }}</p>
+            
+            <!-- Sosyal Medya Linkleri -->
+            <div class="social-links">
+                <a href="https://www.instagram.com/aysegulasya.t?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="social-link">
+                    <i class="fab fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://x.com/aysegulasya11?fbclid=PAZXh0bgNhZW0CMTEAAaeodzh0JLngsvWonGYTJrP2OLkA29UnGBnm1JWKtTuOF3QfPhe8QmS7D-klsg_aem_dkcnex2A182SMfL-DCe13w" target="_blank" class="social-link">
+                    <i class="fab fa-twitter"></i>
+                    <span>Twitter</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Geri Dönüş Butonu -->
+    <div class="back-button-container">
+        <button class="back-button" onclick="window.location.href='{% url 'gezi_blog_onerileri' %}'">
+            <i class="fas fa-arrow-left"></i>
+            <span>Gezi Bloglarına Dön</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Ana İçerik Bölümü -->
+        <div class="detail-content">
+            <div class="detail-main">
+                <div class="detail-image">
+                    {% if gezi_blog.fotograf %}
+                        <img src="{{ gezi_blog.fotograf.url }}" alt="{{ gezi_blog.yer_adi }}">
+                    {% else %}
+                        <div class="no-image-large">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                    {% endif %}
+                    <div class="image-overlay">
+                        <span class="category-badge {{ gezi_blog.kategori }}">{{ gezi_blog.get_kategori_display }}</span>
+                        <span class="rating-badge-large">
+                            {{ gezi_blog.get_puan_yildiz }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="detail-info">
+                    <div class="detail-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-map-pin"></i>
+                            <span>Konum: {{ gezi_blog.sehir }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Ziyaret: {{ gezi_blog.ziyaret_tarihi|date:"d F Y" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-leaf"></i>
+                            <span>En İyi Mevsim: {{ gezi_blog.get_en_iyi_mevsim_display }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Maliyet: {{ gezi_blog.maliyet }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-description">
+                        <h3><i class="fas fa-info-circle"></i> Kısa Açıklama</h3>
+                        <p>{{ gezi_blog.kisa_aciklama|linebreaks }}</p>
+                    </div>
+                    
+                    <div class="admin-review">
+                        <h3><i class="fas fa-hiking"></i> Gezi Deneyimim</h3>
+                        <div class="review-content">
+                            <p>{{ gezi_blog.deneyim|linebreaks }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detaylı Bilgiler -->
+            <div class="travel-details">
+                <div class="travel-info-grid">
+                    {% if gezi_blog.konaklama %}
+                    <div class="travel-info-card">
+                        <h4><i class="fas fa-bed"></i> Konaklama Önerisi</h4>
+                        <p>{{ gezi_blog.konaklama }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="travel-info-card">
+                        <h4><i class="fas fa-route"></i> Ulaşım Bilgileri</h4>
+                        <p>{{ gezi_blog.ulasim|linebreaks }}</p>
+                    </div>
+                    
+                    <div class="travel-info-card">
+                        <h4><i class="fas fa-lightbulb"></i> Tavsiyelerim</h4>
+                        <p>{{ gezi_blog.tavsiyeler|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Benzer Öneriler -->
+            {% if benzer_oneriler %}
+                <div class="similar-section">
+                    <h3><i class="fas fa-thumbs-up"></i> Benzer Gezi Önerileri</h3>
+                    <div class="similar-grid">
+                        {% for item in benzer_oneriler %}
+                            <div class="similar-card">
+                                <div class="similar-image">
+                                    {% if item.fotograf %}
+                                        <img src="{{ item.fotograf.url }}" alt="{{ item.yer_adi }}">
+                                    {% else %}
+                                        <div class="no-image-small">
+                                            <i class="fas fa-map-marked-alt"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="similar-overlay">
+                                        <span class="category-badge {{ item.kategori }}">{{ item.get_kategori_display }}</span>
+                                    </div>
+                                </div>
+                                <div class="similar-info">
+                                    <h4>{{ item.yer_adi }}</h4>
+                                    <p>{{ item.sehir }} - {{ item.ziyaret_tarihi|date:"M Y" }}</p>
+                                    <div class="similar-rating">
+                                        {{ item.get_puan_yildiz }}
+                                    </div>
+                                    <a href="{% url 'gezi_blog_detay' item.pk %}" class="similar-link">
+                                        <i class="fas fa-eye"></i> İncele
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Daha Fazla Gezi Önerisi</h2>
+            <p>Diğer gezi deneyimlerim ve önerilerim için tüm bloglara göz atın!</p>
+            <div class="cta-buttons">
+                <button class="cta-button" onclick="window.location.href='{% url 'gezi_blog_onerileri' %}'">
+                    <i class="fas fa-list"></i> Tüm Gezi Blogları
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'gezi_blog_onerileri' %}?kategori=dogal'">
+                    <i class="fas fa-mountain"></i> Doğal Güzellikler
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'gezi_blog_onerileri' %}?kategori=tarihi'">
+                    <i class="fas fa-monument"></i> Tarihi Yerler
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'anasayfa' %}'">
+                    <i class="fas fa-home"></i> Ana Sayfa
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html> 
