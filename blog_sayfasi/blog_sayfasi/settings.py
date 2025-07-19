@@ -30,38 +30,36 @@ except ImportError:
 SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-)vnuui#-84$@z4wbz7v0z#g@y_0lz+af**06m-f_pq$!*zao5&")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'RENDER' not in os.environ
+# Geçici olarak production'da da debug açıyoruz
+DEBUG = True  # os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # Logging configuration for production debugging
-if not DEBUG:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
         },
-        'root': {
+    },
+    'loggers': {
+        'django': {
             'handlers': ['console'],
             'level': 'INFO',
         },
-    }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'blog-sayfas.onrender.com']
+ALLOWED_HOSTS = ['*']  # Geçici olarak tüm hostname'lere izin ver
 
 # Render.com hostname ayarları
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
-# Production'da tüm render.com subdomainlerine izin ver
-if 'RENDER' in os.environ:
-    ALLOWED_HOSTS.extend([
-        '.onrender.com',
-        '*.onrender.com',
-        'blog-sayfas.onrender.com'
-    ])
 
 
 # Application definition
