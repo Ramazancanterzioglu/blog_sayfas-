@@ -37,15 +37,26 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
+        },
+        'anasayfa': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
         },
     },
     'root': {
@@ -120,13 +131,17 @@ DATABASES = {
     }
 }
 
-# PostgreSQL for production (geçici olarak devre dışı)
-# if 'DATABASE_URL' in os.environ and dj_database_url:
-#     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
-
-# Render'da SQLite kullan (geçici)
+# Production database configuration for Render
 if 'RENDER' in os.environ:
-    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
+    if 'DATABASE_URL' in os.environ and dj_database_url:
+        # PostgreSQL if DATABASE_URL provided
+        DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    else:
+        # SQLite for Render (persistent storage)
+        import os
+        db_dir = os.path.join(BASE_DIR, 'data')
+        os.makedirs(db_dir, exist_ok=True)
+        DATABASES['default']['NAME'] = os.path.join(db_dir, 'db.sqlite3')
 
 
 # Password validation

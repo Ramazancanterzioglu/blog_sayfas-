@@ -79,15 +79,21 @@ class Command(BaseCommand):
         directories = [
             settings.MEDIA_ROOT,
             os.path.join(settings.MEDIA_ROOT, 'dizi_film'),
+            os.path.join(settings.BASE_DIR, 'data'),  # Database için
         ]
         
         for directory in directories:
-            if not os.path.exists(directory):
-                os.makedirs(directory, exist_ok=True)
+            try:
+                if not os.path.exists(directory):
+                    os.makedirs(directory, exist_ok=True)
+                    self.stdout.write(
+                        self.style.SUCCESS(f'📁 Klasör oluşturuldu: {directory}')
+                    )
+                else:
+                    self.stdout.write(
+                        self.style.WARNING(f'📁 Klasör zaten mevcut: {directory}')
+                    )
+            except Exception as e:
                 self.stdout.write(
-                    self.style.SUCCESS(f'📁 Klasör oluşturuldu: {directory}')
-                )
-            else:
-                self.stdout.write(
-                    self.style.WARNING(f'📁 Klasör zaten mevcut: {directory}')
+                    self.style.ERROR(f'❌ Klasör oluşturulamadı {directory}: {str(e)}')
                 ) 
