@@ -1,0 +1,457 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhasebe Terimleri - Finansal Terimler Rehberi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="scroll-indicator"></div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+    
+    <div class="floating-elements">
+        <i class="fas fa-calculator floating-icon" style="font-size: 3rem;"></i>
+        <i class="fas fa-file-invoice floating-icon" style="font-size: 2.5rem;"></i>
+        <i class="fas fa-coins floating-icon" style="font-size: 2rem;"></i>
+        <i class="fas fa-balance-scale floating-icon" style="font-size: 2.8rem;"></i>
+        <i class="fas fa-receipt floating-icon" style="font-size: 2.2rem;"></i>
+        <i class="fas fa-chart-bar floating-icon" style="font-size: 2.6rem;"></i>
+    </div>
+    
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-calculator"></i> Muhasebe Terimleri Rehberi</h1>
+            <p>İş dünyasında bilmeniz gereken temel muhasebe kavramları ve terimleri</p>
+            
+            <!-- Sosyal Medya Linkleri -->
+            <div class="social-links">
+                <a href="https://www.instagram.com/aysegulasya.t?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="social-link">
+                    <i class="fab fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://x.com/aysegulasya11?fbclid=PAZXh0bgNhZW0CMTEAAaeodzh0JLngsvWonGYTJrP2OLkA29UnGBnm1JWKtTuOF3QfPhe8QmS7D-klsg_aem_dkcnex2A182SMfL-DCe13w" target="_blank" class="social-link">
+                    <i class="fab fa-twitter"></i>
+                    <span>Twitter</span>
+                </a>
+            </div>
+            
+            <div class="header-stats">
+                <div class="header-stat">
+                    <span class="number" data-target="25">0</span>
+                    <span class="label">Muhasebe Terimi</span>
+                </div>
+                <div class="header-stat">
+                    <span class="number" data-target="6">0</span>
+                    <span class="label">Ana Kategori</span>
+                </div>
+                <div class="header-stat">
+                    <span class="number" data-target="1000">0</span>
+                    <span class="label">Kullanım Alanı</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Geri Dönüş Butonu -->
+    <div class="back-button-container">
+        <button class="back-button" onclick="window.location.href='{% url 'anasayfa' %}'">
+            <i class="fas fa-arrow-left"></i>
+            <span>Ana Sayfaya Dön</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Temel Muhasebe Kavramları -->
+        <div class="category-section muhasebe-category">
+            <div class="category-header">
+                <h2><i class="fas fa-book"></i> Temel Muhasebe Kavramları</h2>
+                <p>Muhasebe sisteminin temel yapı taşları</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-balance-scale card-icon"></i>
+                    <h3>Bilanço</h3>
+                    <p>İşletmenin belirli bir tarihteki finansal durumunu gösteren temel finansal tablo.</p>
+                    <div class="card-details">
+                        <strong>Bilanço Unsurları:</strong><br>
+                        • Aktifler (Varlıklar)<br>
+                        • Pasifler (Kaynaklar)<br>
+                        • Özkaynak<br>
+                        • Denge: Aktif = Pasif
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 95%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    <h3>Gelir Tablosu</h3>
+                    <p>İşletmenin belirli bir dönemdeki faaliyet sonuçlarını gösteren finansal tablo.</p>
+                    <div class="card-details">
+                        <strong>Gelir Tablosu Kalemleri:</strong><br>
+                        • Gelirler<br>
+                        • Giderler<br>
+                        • Brüt kar<br>
+                        • Net kar/zarar
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-coins card-icon"></i>
+                    <h3>Nakit Akış Tablosu</h3>
+                    <p>İşletmenin nakit girişlerini ve çıkışlarını gösteren finansal tablo.</p>
+                    <div class="card-details">
+                        <strong>Nakit Akış Türleri:</strong><br>
+                        • Operasyonel faaliyetler<br>
+                        • Yatırım faaliyetleri<br>
+                        • Finansman faaliyetleri<br>
+                        • Net nakit değişimi
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hesap Türleri -->
+        <div class="category-section vergi-category">
+            <div class="category-header">
+                <h2><i class="fas fa-folder-open"></i> Hesap Türleri ve Sınıflandırma</h2>
+                <p>Muhasebe hesaplarının kategorileri ve özellikleri</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-warehouse card-icon"></i>
+                    <h3>Varlık Hesapları</h3>
+                    <p>İşletmenin sahip olduğu ekonomik değerleri temsil eden hesaplar.</p>
+                    <div class="card-details">
+                        <strong>Varlık Türleri:</strong><br>
+                        • Dönen varlıklar<br>
+                        • Duran varlıklar<br>
+                        • Maddi varlıklar<br>
+                        • Maddi olmayan varlıklar
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-credit-card card-icon"></i>
+                    <h3>Borç Hesapları</h3>
+                    <p>İşletmenin üçüncü kişilere karşı yükümlülüklerini gösteren hesaplar.</p>
+                    <div class="card-details">
+                        <strong>Borç Türleri:</strong><br>
+                        • Kısa vadeli borçlar<br>
+                        • Uzun vadeli borçlar<br>
+                        • Ticari borçlar<br>
+                        • Finansal borçlar
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 82%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-user-tie card-icon"></i>
+                    <h3>Özkaynak Hesapları</h3>
+                    <p>İşletme sahiplerinin işletmeye sağladığı kaynakları gösteren hesaplar.</p>
+                    <div class="card-details">
+                        <strong>Özkaynak Unsurları:</strong><br>
+                        • Sermaye<br>
+                        • Yedekler<br>
+                        • Geçmiş yıl karları<br>
+                        • Dönem karı/zararı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-chart-area card-icon"></i>
+                    <h3>Gelir Hesapları</h3>
+                    <p>İşletmenin faaliyet dönemindeki gelirlerini gösteren hesaplar.</p>
+                    <div class="card-details">
+                        <strong>Gelir Türleri:</strong><br>
+                        • Satış gelirleri<br>
+                        • Hizmet gelirleri<br>
+                        • Faiz gelirleri<br>
+                        • Diğer gelirler
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-minus-circle card-icon"></i>
+                    <h3>Gider Hesapları</h3>
+                    <p>İşletmenin faaliyet dönemindeki giderlerini gösteren hesaplar.</p>
+                    <div class="card-details">
+                        <strong>Gider Türleri:</strong><br>
+                        • Satışların maliyeti<br>
+                        • Faaliyet giderleri<br>
+                        • Finansman giderleri<br>
+                        • Olağandışı giderler
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Muhasebe İlkeleri -->
+        <div class="category-section sirket-category">
+            <div class="category-header">
+                <h2><i class="fas fa-gavel"></i> Muhasebe İlkeleri</h2>
+                <p>Muhasebe uygulamalarının temel kuralları ve ilkeleri</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-money-bill card-icon"></i>
+                    <h3>Maliyet İlkesi</h3>
+                    <p>Varlıkların elde etme maliyeti üzerinden değerlenmesi ilkesi.</p>
+                    <div class="card-details">
+                        <strong>Maliyet İlkesi Özellikleri:</strong><br>
+                        • Objektif değerleme<br>
+                        • Belgelenebilir maliyetler<br>
+                        • Tarihi maliyet kavramı<br>
+                        • Güvenilir bilgi sağlama
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-calendar-alt card-icon"></i>
+                    <h3>Dönemsellik İlkesi</h3>
+                    <p>İşletme faaliyetlerinin belirli dönemlere bölünmesi ilkesi.</p>
+                    <div class="card-details">
+                        <strong>Dönemsellik Uygulamaları:</strong><br>
+                        • Hesap dönemi (1 yıl)<br>
+                        • Dönem sonu işlemleri<br>
+                        • Gelir-gider eşleştirmesi<br>
+                        • Karşılaştırılabilirlik
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-infinity card-icon"></i>
+                    <h3>İşletmenin Sürekliliği</h3>
+                    <p>İşletmenin faaliyetlerine sürekli devam edeceği varsayımı.</p>
+                    <div class="card-details">
+                        <strong>Süreklilik İlkesi:</strong><br>
+                        • Uzun vadeli planlama<br>
+                        • Amortisman uygulaması<br>
+                        • Yatırım kararları<br>
+                        • Değerleme yaklaşımı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-shield-alt card-icon"></i>
+                    <h3>İhtiyatlılık İlkesi</h3>
+                    <p>Belirsizlik durumlarında temkinli davranma ilkesi.</p>
+                    <div class="card-details">
+                        <strong>İhtiyatlılık Uygulamaları:</strong><br>
+                        • Karşılık ayırma<br>
+                        • Değer düşüklüğü<br>
+                        • Muhtemel zararlar<br>
+                        • Güvenli değerleme
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finansal Analiz Terimleri -->
+        <div class="category-section islem-category">
+            <div class="category-header">
+                <h2><i class="fas fa-analytics"></i> Finansal Analiz Terimleri</h2>
+                <p>Finansal performans değerlendirmesinde kullanılan terimler</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-percentage card-icon"></i>
+                    <h3>Kar Marjı</h3>
+                    <p>Satışlardan elde edilen karın satışlara oranı.</p>
+                    <div class="card-details">
+                        <strong>Kar Marjı Türleri:</strong><br>
+                        • Brüt kar marjı<br>
+                        • Faaliyet kar marjı<br>
+                        • Net kar marjı<br>
+                        • EBITDA marjı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-sync-alt card-icon"></i>
+                    <h3>Devir Hızı</h3>
+                    <p>Varlıkların ne kadar hızlı kullanıldığını gösteren ölçü.</p>
+                    <div class="card-details">
+                        <strong>Devir Hızı Türleri:</strong><br>
+                        • Stok devir hızı<br>
+                        • Alacak devir hızı<br>
+                        • Aktif devir hızı<br>
+                        • Özkaynak devir hızı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 87%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-tint card-icon"></i>
+                    <h3>Likidite</h3>
+                    <p>Varlıkların nakde dönüştürülme kolaylığı.</p>
+                    <div class="card-details">
+                        <strong>Likidite Seviyeleri:</strong><br>
+                        • Yüksek likidite (nakit)<br>
+                        • Orta likidite (alacaklar)<br>
+                        • Düşük likidite (stoklar)<br>
+                        • Sabit varlıklar
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-weight-hanging card-icon"></i>
+                    <h3>Kaldıraç Etkisi</h3>
+                    <p>Borç kullanımının karlılık üzerindeki etkisi.</p>
+                    <div class="card-details">
+                        <strong>Kaldıraç Türleri:</strong><br>
+                        • Finansal kaldıraç<br>
+                        • Faaliyet kaldıracı<br>
+                        • Toplam kaldıraç<br>
+                        • Risk-getiri dengesi
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maliyet Muhasebesi -->
+        <div class="category-section kontrol-category">
+            <div class="category-header">
+                <h2><i class="fas fa-industry"></i> Maliyet Muhasebesi Terimleri</h2>
+                <p>Üretim ve maliyet kontrolünde kullanılan kavramlar</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-hammer card-icon"></i>
+                    <h3>Direkt Malzeme</h3>
+                    <p>Ürünün fiziksel yapısına doğrudan giren malzemeler.</p>
+                    <div class="card-details">
+                        <strong>Direkt Malzeme Özellikleri:</strong><br>
+                        • Fiziksel bileşen<br>
+                        • Ölçülebilir miktar<br>
+                        • Ürüne atfedilebilir<br>
+                        • Ana hammadde
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-users card-icon"></i>
+                    <h3>Direkt İşçilik</h3>
+                    <p>Ürün üretiminde doğrudan çalışan işçilerin maliyeti.</p>
+                    <div class="card-details">
+                        <strong>Direkt İşçilik Unsurları:</strong><br>
+                        • Üretim işçilerinin maaşı<br>
+                        • Sosyal güvenlik giderleri<br>
+                        • Fazla mesai ücretleri<br>
+                        • Primler ve ikramiyeler
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-cogs card-icon"></i>
+                    <h3>Genel Üretim Giderleri</h3>
+                    <p>Üretimle ilgili ancak direkt atfedilemeyen giderler.</p>
+                    <div class="card-details">
+                        <strong>GÜG Kalemleri:</strong><br>
+                        • Fabrika kira gideri<br>
+                        • Makine amortismanı<br>
+                        • Endirekt malzeme<br>
+                        • Endirekt işçilik
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 82%;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <i class="fas fa-calculator card-icon"></i>
+                    <h3>Standart Maliyet</h3>
+                    <p>Önceden belirlenen ideal maliyet değerleri.</p>
+                    <div class="card-details">
+                        <strong>Standart Maliyet Faydaları:</strong><br>
+                        • Planlama ve kontrol<br>
+                        • Performans ölçümü<br>
+                        • Varyans analizi<br>
+                        • Karar destek sistemi
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Muhasebe Bilginizi Derinleştirin</h2>
+            <p>Kapsamlı muhasebe terimleri ile finansal okuryazarlığınızı artırın. Profesyonel iş hayatında güçlü bir muhasebe temeline sahip olun.</p>
+            <div class="cta-buttons">
+                <button class="cta-button" onclick="window.location.href='{% url 'anasayfa' %}'">
+                    <i class="fas fa-home"></i> Ana Sayfa
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'oran_analizleri' %}'">
+                    <i class="fas fa-chart-pie"></i> Oran Analizleri
+                </button>
+                <button class="cta-button" onclick="showAlert('course')">
+                    <i class="fas fa-graduation-cap"></i> Muhasebe Eğitimi
+                </button>
+                <button class="cta-button" onclick="showAlert('test')">
+                    <i class="fas fa-question-circle"></i> Bilgi Testi
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html> 

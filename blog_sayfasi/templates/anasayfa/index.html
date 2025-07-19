@@ -1,0 +1,374 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesyonel Finansal Terimler Rehberi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="scroll-indicator"></div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+    <div class="floating-elements">
+        <i class="fas fa-chart-line floating-icon" style="font-size: 3rem;"></i>
+        <i class="fas fa-dollar-sign floating-icon" style="font-size: 2.5rem;"></i>
+        <i class="fas fa-coins floating-icon" style="font-size: 2rem;"></i>
+        <i class="fas fa-credit-card floating-icon" style="font-size: 2.8rem;"></i>
+        <i class="fas fa-university floating-icon" style="font-size: 2.2rem;"></i>
+        <i class="fas fa-calculator floating-icon" style="font-size: 2.6rem;"></i>
+    </div>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-university"></i> Profesyonel Finansal Terimler Rehberi</h1>
+            <p>İş dünyasında başarılı olmak için bilmeniz gereken kapsamlı finansal kavramlar ve muhasebe terimleri</p>
+            
+            <!-- Sosyal Medya Linkleri -->
+            <div class="social-links">
+                <a href="https://www.instagram.com/aysegulasya.t?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="social-link">
+                    <i class="fab fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://x.com/aysegulasya11?fbclid=PAZXh0bgNhZW0CMTEAAaeodzh0JLngsvWonGYTJrP2OLkA29UnGBnm1JWKtTuOF3QfPhe8QmS7D-klsg_aem_dkcnex2A182SMfL-DCe13w" target="_blank" class="social-link">
+                    <i class="fab fa-twitter"></i>
+                    <span>Twitter</span>
+                </a>
+            </div>
+            
+            <!-- Ana Butonlar -->
+            <div class="header-cta">
+                <button class="header-cta-button" onclick="window.location.href='{% url 'oran_analizleri' %}'">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>34 Oran Analizi</span>
+                </button>
+                <button class="header-cta-button" onclick="window.location.href='{% url 'muhasebe_terimleri' %}'">
+                    <i class="fas fa-calculator"></i>
+                    <span>Muhasebe Terimleri</span>
+                </button>
+            </div>
+            
+            <div class="header-stats">
+                <div class="header-stat">
+                    <span class="number" data-target="16">0</span>
+                    <span class="label">Finansal Terim</span>
+                </div>
+                <div class="header-stat">
+                    <span class="number" data-target="5">0</span>
+                    <span class="label">Kategori</span>
+                </div>
+                <div class="header-stat">
+                    <span class="number" data-target="2500">0</span>
+                    <span class="label">Aktif Kullanıcı</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="category-section sirket-category">
+            <div class="category-header">
+                <h2><i class="fas fa-building"></i> Şirket Türleri</h2>
+                <p>Farklı şirket yapıları ve özellikleri</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-handshake card-icon"></i>
+                    <h3>Adi Şirket</h3>
+                    <p>İki veya daha fazla kişinin ortak amaçla kurduğu, basit ortaklık türü.</p>
+                    <div class="card-details">
+                        <strong>Temel Özellikler:</strong><br>
+                        • Sözleşmeyle kurulur<br>
+                        • Ortaklar sınırsız sorumlu<br>
+                        • Tüzel kişiliği yoktur<br>
+                        • En basit ortaklık türü
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    <h3>Anonim Şirket</h3>
+                    <p>Ortakların payları kadar sorumlu olduğu, menkul kıymet çıkarabilen büyük sermayeli şirket türü.</p>
+                    <div class="card-details">
+                        <strong>Avantajları:</strong><br>
+                        • Sınırlı sorumluluk<br>
+                        • Hisse senedi çıkarabilir<br>
+                        • Halka açılabilir<br>
+                        • Profesyonel yönetim
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 95%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-users card-icon"></i>
+                    <h3>Halka Açık Şirket</h3>
+                    <p>Hisse senetleri borsada işlem gören, kamuya açık ortaklık yapısı.</p>
+                    <div class="card-details">
+                        <strong>Özel Durumlar:</strong><br>
+                        • Borsa kotasyonu<br>
+                        • Şeffaflık zorunluluğu<br>
+                        • SPK denetimi<br>
+                        • Yatırımcı ilişkileri
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="category-section muhasebe-category">
+            <div class="category-header">
+                <h2><i class="fas fa-calculator"></i> Muhasebe Kavramları</h2>
+                <p>Temel muhasebe terimleri ve uygulamaları</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-chart-area card-icon"></i>
+                    <h3>Amortisman</h3>
+                    <p>Kullanılan varlıkların yıpranma ve eskime nedeniyle değer kaybının parasal karşılığı.</p>
+                    <div class="card-details">
+                        <strong>Amortisman Yöntemleri:</strong><br>
+                        • Normal amortisman<br>
+                        • Hızlandırılmış amortisman<br>
+                        • Azalan bakiyeler usulü<br>
+                        • Doğrusal amortisman
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 82%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-file-alt card-icon"></i>
+                    <h3>Beyanname</h3>
+                    <p>Hukuki bir varlığın resmi makamlara bildirildiği yazılı belge.</p>
+                    <div class="card-details">
+                        <strong>Beyanname Türleri:</strong><br>
+                        • Gelir vergisi beyannamesi<br>
+                        • Kurumlar vergisi beyannamesi<br>
+                        • KDV beyannamesi<br>
+                        • Muhtasar beyanname
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-clipboard-list card-icon"></i>
+                    <h3>Bordro</h3>
+                    <p>Her işçi için düzenlenen, maaş ve kesintileri gösteren detaylı belge.</p>
+                    <div class="card-details">
+                        <strong>Bordro İçeriği:</strong><br>
+                        • Brüt maaş<br>
+                        • SGK kesintileri<br>
+                        • Gelir vergisi<br>
+                        • Net ödeme tutarı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-dollar-sign card-icon"></i>
+                    <h3>Hasılat</h3>
+                    <p>İşletmenin satış faaliyetlerinden elde ettiği toplam gelir miktarı.</p>
+                    <div class="card-details">
+                        <strong>Hasılat Türleri:</strong><br>
+                        • Satış hasılatı<br>
+                        • Hizmet hasılatı<br>
+                        • Faiz hasılatı<br>
+                        • Kira hasılatı
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="category-section vergi-category">
+            <div class="category-header">
+                <h2><i class="fas fa-receipt"></i> Vergi ve Muhasebe Kavramları</h2>
+                <p>Vergi mevzuatı ve muhasebe işlemleri</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-cut card-icon"></i>
+                    <h3>Stopaj</h3>
+                    <p>Gelir/kurumlar vergisi mükellefi adına ödenmeden önce verginin kesilerek devlete peşin yatırılması.</p>
+                    <div class="card-details">
+                        <strong>Stopaj Uygulamaları:</strong><br>
+                        • Maaş stopajı (%15-35)<br>
+                        • Serbest meslek stopajı (%20)<br>
+                        • Kira stopajı (%20)<br>
+                        • Faiz stopajı (%10)
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-eraser card-icon"></i>
+                    <h3>Terkin</h3>
+                    <p>Kayıtlardan düşme veya silme işlemi, muhasebe kayıtlarının iptali.</p>
+                    <div class="card-details">
+                        <strong>Terkin İşlemleri:</strong><br>
+                        • Vergi borcunun silinmesi<br>
+                        • Kayıt düzeltmeleri<br>
+                        • İptal işlemleri<br>
+                        • Hatalı kayıt düzeltimi
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 75%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="category-section islem-category">
+            <div class="category-header">
+                <h2><i class="fas fa-exchange-alt"></i> İşlem Türleri</h2>
+                <p>Ticari ve finansal işlem çeşitleri</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-sync-alt card-icon"></i>
+                    <h3>Trampa</h3>
+                    <p>Para kullanmadan mal veya hizmet ile değiş tokuş yapılması, takas işlemi.</p>
+                    <div class="card-details">
+                        <strong>Trampa Özellikleri:</strong><br>
+                        • Nakitsiz ticaret<br>
+                        • Eşdeğer değer takası<br>
+                        • KDV uygulaması<br>
+                        • Emtia borsası işlemleri
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 68%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-calculator card-icon"></i>
+                    <h3>Bütçe Yönetimi</h3>
+                    <p>Belirli bir dönem için planlanan gelir ve gider tahminlerini içeren finansal araç.</p>
+                    <div class="card-details">
+                        <strong>Bütçe Türleri:</strong><br>
+                        • Operasyon bütçesi<br>
+                        • Sermaye bütçesi<br>
+                        • Nakit akış bütçesi<br>
+                        • Ana bütçe
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-exchange-alt card-icon"></i>
+                    <h3>Cari Hesap</h3>
+                    <p>İki taraf arasındaki alacak-verecek ilişkilerinin sürekli olarak izlendiği hesap türü.</p>
+                    <div class="card-details">
+                        <strong>Cari Hesap Türleri:</strong><br>
+                        • Müşteri cari hesapları<br>
+                        • Tedarikçi cari hesapları<br>
+                        • Personel cari hesapları<br>
+                        • Banka cari hesapları
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-globe-americas card-icon"></i>
+                    <h3>Efektif Döviz</h3>
+                    <p>Fiziksel olarak mevcut olan ve anında kullanılabilir durumda bulunan yabancı para birimleri.</p>
+                    <div class="card-details">
+                        <strong>Efektif Özellikler:</strong><br>
+                        • Fiziksel para<br>
+                        • Anında kullanım<br>
+                        • Döviz büroları<br>
+                        • Turizm sektörü
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="category-section kontrol-category">
+            <div class="category-header">
+                <h2><i class="fas fa-search"></i> Kontrol ve Değerlendirme</h2>
+                <p>Denetim ve değerleme işlemleri</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <i class="fas fa-search-dollar card-icon"></i>
+                    <h3>Ekspertiz</h3>
+                    <p>Bir varlığın değerinin ve durumunun uzman kişiler tarafından yapılan kontrol işlemleri.</p>
+                    <div class="card-details">
+                        <strong>Ekspertiz Alanları:</strong><br>
+                        • Gayrimenkul ekspertizi<br>
+                        • Araç ekspertizi<br>
+                        • Makine-teçhizat<br>
+                        • Sanat eseri değerleme
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 86%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-clipboard-check card-icon"></i>
+                    <h3>Envanter</h3>
+                    <p>İşletmede bulunan varlıkların sayım ve kontrol işlemleri, stok tespiti.</p>
+                    <div class="card-details">
+                        <strong>Envanter Türleri:</strong><br>
+                        • Devresel envanter<br>
+                        • Sürekli envanter<br>
+                        • Fiziki envanter<br>
+                        • Muhasebe envanteri
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    <h3>Ciro Analizi</h3>
+                    <p>Belirli bir dönemde işletmenin satış faaliyetlerinden elde ettiği toplam gelir analizi.</p>
+                    <div class="card-details">
+                        <strong>Ciro Metrikleri:</strong><br>
+                        • Aylık ciro artışı<br>
+                        • Yıllık ciro trendi<br>
+                        • Sektörel karşılaştırma<br>
+                        • Karlılık analizi
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="cta-section">
+            <h2>Finansal Expertinizi Geliştirin</h2>
+            <p>Profesyonel iş dünyasında güçlü bir finansal temele sahip olmak için kapsamlı eğitim programlarımızdan faydalanın. Modern finansal araçları kullanmayı öğrenin ve kariyerinizi bir sonraki seviyeye taşıyın.</p>
+            <div class="cta-buttons">
+                <button class="cta-button" onclick="showAlert('course')">
+                    <i class="fas fa-graduation-cap"></i> Detaylı Kurs İçerikleri
+                </button>
+                <button class="cta-button" onclick="showAlert('test')">
+                    <i class="fas fa-question-circle"></i> Bilgi Testi
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'oran_analizleri' %}'">
+                    <i class="fas fa-chart-pie"></i> Oran Analizleri
+                </button>
+                <button class="cta-button" onclick="window.location.href='{% url 'muhasebe_terimleri' %}'">
+                    <i class="fas fa-calculator"></i> Muhasebe Terimleri
+                </button>
+                <button class="cta-button" onclick="showAlert('consult')">
+                    <i class="fas fa-user-tie"></i> Uzman Danışmanlık
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
