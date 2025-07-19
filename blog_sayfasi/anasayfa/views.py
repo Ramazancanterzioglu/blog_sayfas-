@@ -61,14 +61,49 @@ def dizi_film_onerileri(request):
         
     except Exception as e:
         from django.conf import settings
+        import traceback
+        
+        error_details = f"""
+        <h1>🔍 Dizi/Film Önerileri Debug</h1>
+        <h2>Hata Detayları:</h2>
+        <p><strong>Hata:</strong> {str(e)}</p>
+        <p><strong>Hata Türü:</strong> {type(e).__name__}</p>
+        
+        <h3>Traceback:</h3>
+        <pre style="background: #f5f5f5; padding: 1rem; overflow: auto;">
+{traceback.format_exc()}
+        </pre>
+        
+        <h3>Database Test:</h3>
+        """
+        
+        # Database test
+        try:
+            from django.db import connection
+            cursor = connection.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='anasayfa_dizifilm';")
+            table_exists = cursor.fetchone()
+            
+            if table_exists:
+                error_details += "<p>✅ anasayfa_dizifilm tablosu mevcut</p>"
+                try:
+                    DiziFilm.objects.count()
+                    error_details += "<p>✅ DiziFilm model'i çalışıyor</p>"
+                except Exception as model_e:
+                    error_details += f"<p>❌ DiziFilm model hatası: {str(model_e)}</p>"
+            else:
+                error_details += "<p>❌ anasayfa_dizifilm tablosu yok - migration gerekli</p>"
+                
+        except Exception as db_e:
+            error_details += f"<p>❌ Database test hatası: {str(db_e)}</p>"
+        
+        error_details += """
+        <hr>
+        <p><a href="/test/">System Test</a> | <a href="/">Ana Sayfa</a></p>
+        """
+        
         if settings.DEBUG:
-            return HttpResponse(f"""
-            <h1>Dizi/Film Önerileri Sayfası Hatası</h1>
-            <p><strong>Hata:</strong> {str(e)}</p>
-            <p><strong>Hata Türü:</strong> {type(e).__name__}</p>
-            <hr>
-            <p><a href="/">Ana Sayfaya Dön</a></p>
-            """)
+            return HttpResponse(error_details)
         else:
             # Production'da generic error page
             return render(request, 'anasayfa/index.html', {
@@ -131,6 +166,46 @@ def ornek_sayfa(request):
 def test_view(request):
     import django
     import sys
+    from django.db import connection
+    from django.contrib.auth.models import User
+    
+    # Database test
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = [row[0] for row in cursor.fetchall()]
+        db_status = f"✅ Database OK - {len(tables)} tables"
+        
+        # User test
+        try:
+            user_count = User.objects.count()
+            user_status = f"✅ Users: {user_count}"
+            
+            if user_count > 0:
+                users = User.objects.all()[:3]
+                user_list = [f"{u.username} ({'superuser' if u.is_superuser else 'user'})" for u in users]
+                user_details = "<br>".join(user_list)
+            else:
+                user_details = "No users found"
+                
+        except Exception as e:
+            user_status = f"❌ User error: {str(e)}"
+            user_details = ""
+            
+    except Exception as e:
+        db_status = f"❌ Database error: {str(e)}"
+        tables = []
+        user_status = "❌ Can't check users"
+        user_details = ""
+    
+    # DiziFilm test
+    try:
+        from .models import DiziFilm
+        dizi_count = DiziFilm.objects.count()
+        dizi_status = f"✅ DiziFilm: {dizi_count} items"
+    except Exception as e:
+        dizi_status = f"❌ DiziFilm error: {str(e)}"
+    
     return HttpResponse(f"""
     <h1>🎉 Django Çalışıyor!</h1>
     <h2>Sistem Bilgileri:</h2>
@@ -140,11 +215,28 @@ def test_view(request):
         <li>Debug Mode: {settings.DEBUG}</li>
         <li>Allowed Hosts: {settings.ALLOWED_HOSTS}</li>
     </ul>
+    
+    <h2>Database Durumu:</h2>
+    <ul>
+        <li>{db_status}</li>
+        <li>{user_status}</li>
+        <li>{dizi_status}</li>
+    </ul>
+    
+    <h3>Database Tables:</h3>
+    <ul>
+        {''.join([f'<li>{table}</li>' for table in tables])}
+    </ul>
+    
+    <h3>Users:</h3>
+    <p>{user_details}</p>
+    
     <h2>Test Linkleri:</h2>
     <ul>
         <li><a href="/">Ana Sayfa</a></li>
         <li><a href="/oran-analizleri/">Oran Analizleri</a></li>
         <li><a href="/muhasebe-terimleri/">Muhasebe Terimleri</a></li>
         <li><a href="/dizi-film-onerileri/">Dizi/Film Önerileri</a></li>
+        <li><a href="/admin/">Admin Panel</a></li>
     </ul>
     """)
