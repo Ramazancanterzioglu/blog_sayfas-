@@ -238,5 +238,62 @@ def test_view(request):
         <li><a href="/muhasebe-terimleri/">Muhasebe Terimleri</a></li>
         <li><a href="/dizi-film-onerileri/">Dizi/Film Önerileri</a></li>
         <li><a href="/admin/">Admin Panel</a></li>
+        <li><a href="/force-migrate/">🚨 Force Migrate</a></li>
     </ul>
     """)
+
+def force_migrate(request):
+    """Acil durum için manuel migration"""
+    from django.core.management import call_command
+    from io import StringIO
+    import sys
+    
+    output = StringIO()
+    
+    html_output = "<h1>🚨 Force Migration</h1><h2>Migration Sonuçları:</h2><pre style='background: #f0f0f0; padding: 1rem;'>"
+    
+    try:
+        # Capture output
+        old_stdout = sys.stdout
+        sys.stdout = output
+        
+        # Run migrations
+        call_command('migrate', '--run-syncdb', verbosity=2)
+        call_command('migrate', verbosity=2)
+        
+        # Restore stdout
+        sys.stdout = old_stdout
+        
+        migration_output = output.getvalue()
+        html_output += migration_output
+        html_output += "</pre><h3>✅ Migration Tamamlandı!</h3>"
+        
+        # Test database
+        from django.db import connection
+        cursor = connection.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = [row[0] for row in cursor.fetchall()]
+        
+        html_output += f"<h3>Database Tables ({len(tables)}):</h3><ul>"
+        for table in tables:
+            html_output += f"<li>{table}</li>"
+        html_output += "</ul>"
+        
+        # Test users
+        try:
+            from django.contrib.auth.models import User
+            user_count = User.objects.count()
+            html_output += f"<h3>Users: {user_count}</h3>"
+        except Exception as e:
+            html_output += f"<h3>User test error: {str(e)}</h3>"
+            
+    except Exception as e:
+        sys.stdout = old_stdout
+        html_output += f"</pre><h3>❌ Migration Hatası:</h3><p>{str(e)}</p>"
+        
+    html_output += """
+    <hr>
+    <p><a href="/test/">Test Page</a> | <a href="/">Ana Sayfa</a> | <a href="/admin/">Admin</a></p>
+    """
+    
+    return HttpResponse(html_output)

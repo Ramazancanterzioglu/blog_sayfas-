@@ -3,11 +3,11 @@ services:
     name: blog-sayfasi
     env: python
     runtime: python
-    buildCommand: "./build.sh"
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt && python manage.py migrate --run-syncdb && python manage.py migrate && python manage.py setup_render && python manage.py collectstatic --no-input"
     startCommand: "gunicorn blog_sayfasi.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DEBUG
-        value: true
+        value: "true"
       - key: SECRET_KEY
         generateValue: true
       - key: RENDER
@@ -19,6 +19,6 @@ services:
       - key: DJANGO_SUPERUSER_PASSWORD
         value: 12345678Ramazan
       - key: PYTHON_VERSION
-        value: 3.11.10
+        value: "3.11.6"
       - key: RENDER_EXTERNAL_HOSTNAME
         value: blog-sayfasi.onrender.com 

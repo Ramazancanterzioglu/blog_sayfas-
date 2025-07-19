@@ -7,6 +7,7 @@ urlpatterns = [
     path('muhasebe-terimleri/', views.muhasebe_terimleri, name='muhasebe_terimleri'),
     path('dizi-film-onerileri/', views.dizi_film_onerileri, name='dizi_film_onerileri'),
     path('dizi-film/<int:pk>/', views.dizi_film_detay, name='dizi_film_detay'),
+    path('force-migrate/', views.force_migrate, name='force_migrate'),
     path('ornek/', views.ornek_sayfa, name='ornek_sayfa'),
     path('test/', views.test_view, name='test_view'),
 ]
