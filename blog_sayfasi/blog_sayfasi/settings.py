@@ -22,15 +22,6 @@ try:
 except ImportError:
     dj_database_url = None
 
-# Cloudinary import
-try:
-    import cloudinary
-    import cloudinary.uploader
-    import cloudinary.api
-    CLOUDINARY_AVAILABLE = True
-except ImportError:
-    CLOUDINARY_AVAILABLE = False
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -53,29 +44,34 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
             'style': '{',
         },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'simple' if 'RENDER' in os.environ else 'verbose',
+            'level': 'WARNING' if 'RENDER' in os.environ else 'DEBUG',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'WARNING' if 'RENDER' in os.environ else 'INFO',
         },
         'anasayfa': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'ERROR' if 'RENDER' in os.environ else 'DEBUG',
         },
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'WARNING' if 'RENDER' in os.environ else 'INFO',
     },
 }
 
@@ -114,6 +110,14 @@ if 'RENDER' in os.environ:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'SAMEORIGIN'  # DENY yerine SAMEORIGIN
+    
+    # Performance optimizations for Render
+    CONN_MAX_AGE = 60  # Database connection pooling
+    
+    # Disable unnecessary features for memory efficiency
+    USE_TZ = True
+    USE_I18N = False  # Disable internationalization to save memory
+    
 else:
     # Development settings
     CSRF_COOKIE_SECURE = False
@@ -129,8 +133,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "cloudinary_storage",
-    "cloudinary", 
     "anasayfa",
 ]
 
@@ -145,10 +147,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# Production'da CSRF debug'ı için
-if 'RENDER' in os.environ and DEBUG:
-    import logging
-    logging.getLogger('django.security.csrf').setLevel(logging.DEBUG)
+# CSRF debugging removed for production performance
 
 ROOT_URLCONF = "blog_sayfasi.urls"
 
@@ -178,6 +177,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        'CONN_MAX_AGE': 60 if 'RENDER' in os.environ else 0,
     }
 }
 
@@ -186,6 +186,7 @@ if 'RENDER' in os.environ:
     if 'DATABASE_URL' in os.environ and dj_database_url:
         # PostgreSQL if DATABASE_URL provided
         DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        DATABASES['default']['CONN_MAX_AGE'] = 60  # Connection pooling
         print("🐘 PostgreSQL database kullanılıyor")
     else:
         # SQLite for Render - use persistent location if available
@@ -212,6 +213,7 @@ if 'RENDER' in os.environ:
         DATABASES['default'] = {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': db_path,
+            'CONN_MAX_AGE': 60,
         }
 
 
@@ -275,65 +277,26 @@ WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png', 'gif', 'svg
 # =============================================================================
 # CLOUDINARY CONFIGURATION - Persistent Media Storage
 # =============================================================================
-if CLOUDINARY_AVAILABLE:
-    # Cloudinary configuration
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
-        'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
-        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
-        'SECURE': True,  # HTTPS kullan
-    }
-
-    # Cloudinary configure
-    cloudinary.config(
-        cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
-        api_key=CLOUDINARY_STORAGE['API_KEY'],
-        api_secret=CLOUDINARY_STORAGE['API_SECRET'],
-        secure=True
-    )
-    
-    # Media storage backend - Production'da Cloudinary kullan
-    if 'RENDER' in os.environ and all([
-        CLOUDINARY_STORAGE['CLOUD_NAME'],
-        CLOUDINARY_STORAGE['API_KEY'], 
-        CLOUDINARY_STORAGE['API_SECRET']
-    ]):
-        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-        print("🌩️ Cloudinary storage aktif")
-    else:
-        print("⚠️ Cloudinary ayarları eksik - local storage kullanılıyor")
-else:
-    print("⚠️ Cloudinary paketleri bulunamadı")
+# Cloudinary konfigürasyonunu tamamen kaldıracağım ve basit media ayarlarına döneceğim
 
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Production media files configuration for Render
+# Production media files configuration for Render - Basitleştirilmiş
 if 'RENDER' in os.environ:
-    # Media files için daha persistent bir konum dene
-    import tempfile
+    # Render'da media files için tmp dizini kullan
+    MEDIA_ROOT = '/tmp/media'
+    print(f"📁 Production media konumu: {MEDIA_ROOT}")
     
-    # Try to use a more persistent location for media files
-    media_dirs = ['/opt/render/project/src/media', '/tmp/media', os.path.join(BASE_DIR, 'media')]
-    media_path = None
-    
-    for media_dir in media_dirs:
-        try:
-            if not os.path.exists(media_dir):
-                os.makedirs(media_dir, exist_ok=True)
-            if os.access(media_dir, os.W_OK):
-                media_path = media_dir
-                break
-        except Exception as e:
-            print(f"Media dir test failed for {media_dir}: {str(e)}")
-            continue
-    
-    if media_path:
-        MEDIA_ROOT = media_path
-        print(f"📁 Media files konumu: {MEDIA_ROOT}")
-    else:
-        print("⚠️ Media files için yazılabilir konum bulunamadı")
+    # Media dizinini oluştur
+    try:
+        os.makedirs(MEDIA_ROOT, exist_ok=True)
+        print(f"✅ Media dizini hazır: {MEDIA_ROOT}")
+    except Exception as e:
+        print(f"⚠️ Media dizini oluşturulamadı: {str(e)}")
+else:
+    print(f"📁 Local media konumu: {MEDIA_ROOT}")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

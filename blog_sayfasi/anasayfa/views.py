@@ -424,15 +424,13 @@ def test_view(request):
     <h2>Media Files Test:</h2>
     <p><a href="/media-test/" style="background: #28a745; color: white; padding: 10px; text-decoration: none;">📁 Media Files Debug</a></p>
     
-    <h2>Cloudinary Test:</h2>
-    <p><a href="/cloudinary-test/" style="background: #17a2b8; color: white; padding: 10px; text-decoration: none;">☁️ Cloudinary Storage Test</a></p>
-    
     <h2>Test Linkleri:</h2>
     <ul>
         <li><a href="/">Ana Sayfa</a></li>
         <li><a href="/oran-analizleri/">Oran Analizleri</a></li>
         <li><a href="/muhasebe-terimleri/">Muhasebe Terimleri</a></li>
         <li><a href="/dizi-film-onerileri/">Dizi/Film Önerileri</a></li>
+        <li><a href="/gezi-blog-onerileri/">Gezi Blog Önerileri</a></li>
         <li><a href="/admin/">Admin Panel</a></li>
         <li><a href="/force-migrate/">🚨 Force Migrate</a></li>
     </ul>
@@ -594,7 +592,7 @@ def create_superuser_view(request):
 def media_test_view(request):
     """Media files test view'ı"""
     from django.conf import settings
-    from .models import DiziFilm
+    from .models import DiziFilm, GeziBlog
     import os
     
     html_output = "<h1>📁 Media Files Test</h1>"
@@ -651,136 +649,35 @@ def media_test_view(request):
     # Database test
     try:
         dizi_filmler = DiziFilm.objects.all()[:3]
+        gezi_bloglari = GeziBlog.objects.all()[:3]
+        
         html_output += f"<h2>🎬 DiziFilm Objects ({DiziFilm.objects.count()}):</h2>"
+        html_output += f"<h2>🗺️ GeziBlog Objects ({GeziBlog.objects.count()}):</h2>"
         
         for item in dizi_filmler:
             html_output += f"""
             <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
-                <h4>{item.isim}</h4>
-                <p><strong>Fotoğraf field:</strong> {item.fotograf}</p>
-                <p><strong>Fotoğraf path:</strong> {item.fotograf.path if item.fotograf else 'No image'}</p>
+                <h4>📺 {item.isim}</h4>
                 <p><strong>Fotoğraf URL:</strong> {item.fotograf.url if item.fotograf else 'No image'}</p>
-                
                 {"<p><strong>File exists:</strong> " + str(os.path.exists(item.fotograf.path)) + "</p>" if item.fotograf else "<p>No image file</p>"}
-                
-                {f'<p><strong>File size:</strong> {os.path.getsize(item.fotograf.path)} bytes</p>' if item.fotograf and os.path.exists(item.fotograf.path) else ''}
-                
-                <p><strong>Full URL Test:</strong> 
-                   <a href="{item.fotograf.url if item.fotograf else '#'}" target="_blank">
-                       {item.fotograf.url if item.fotograf else 'No URL'}
-                   </a>
-                </p>
-                
-                {f'<img src="{item.fotograf.url}" alt="{item.isim}" style="max-width: 200px; max-height: 150px;">' if item.fotograf else '<p>No image to display</p>'}
+            </div>
+            """
+            
+        for gezi in gezi_bloglari:
+            html_output += f"""
+            <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                <h4>🗺️ {gezi.yer_adi}</h4>
+                <p><strong>Fotoğraf URL:</strong> {gezi.fotograf.url if gezi.fotograf else 'No image'}</p>
+                {"<p><strong>File exists:</strong> " + str(os.path.exists(gezi.fotograf.path)) + "</p>" if gezi.fotograf else "<p>No image file</p>"}
             </div>
             """
             
     except Exception as e:
         html_output += f"<h3>❌ Database Error: {str(e)}</h3>"
     
-    # URL test
-    html_output += f"""
-    <h2>🔗 URL Tests:</h2>
-    <ul>
-        <li>Media URL Test: <a href="{settings.MEDIA_URL}" target="_blank">{settings.MEDIA_URL}</a></li>
-        <li>Sample image URL: <a href="{settings.MEDIA_URL}dizi_film/interstellar-yildizlararasi-cekildigi-yerler-nerede-cekildi.webp" target="_blank">
-            {settings.MEDIA_URL}dizi_film/interstellar-yildizlararasi-cekildigi-yerler-nerede-cekildi.webp</a></li>
-    </ul>
-    """
-    
     html_output += """
     <hr>
-    <p><a href="/test/">🧪 Main Test Page</a> | <a href="/dizi-film-onerileri/">🎬 Dizi Film Önerileri</a> | <a href="/">🏠 Ana Sayfa</a></p>
-    """
-    
-    return HttpResponse(html_output)
-
-def cloudinary_test_view(request):
-    """Cloudinary bağlantısını test eder"""
-    from django.conf import settings
-    import os
-    
-    html_output = "<h1>☁️ Cloudinary Test</h1>"
-    
-    # Environment variables check
-    html_output += f"""
-    <h2>🔑 Environment Variables:</h2>
-    <ul>
-        <li><strong>CLOUDINARY_CLOUD_NAME:</strong> {os.environ.get('CLOUDINARY_CLOUD_NAME', 'NOT SET')}</li>
-        <li><strong>CLOUDINARY_API_KEY:</strong> {os.environ.get('CLOUDINARY_API_KEY', 'NOT SET')}</li>
-        <li><strong>CLOUDINARY_API_SECRET:</strong> {'SET' if os.environ.get('CLOUDINARY_API_SECRET') else 'NOT SET'}</li>
-        <li><strong>RENDER env:</strong> {'RENDER' in os.environ}</li>
-    </ul>
-    """
-    
-    # Settings check
-    try:
-        cloudinary_available = hasattr(settings, 'CLOUDINARY_STORAGE')
-        html_output += f"<h3>📋 Settings:</h3>"
-        html_output += f"<p>CLOUDINARY_AVAILABLE: {getattr(settings, 'CLOUDINARY_AVAILABLE', False)}</p>"
-        html_output += f"<p>DEFAULT_FILE_STORAGE: {getattr(settings, 'DEFAULT_FILE_STORAGE', 'Not set')}</p>"
-        
-        if cloudinary_available:
-            cloudinary_config = getattr(settings, 'CLOUDINARY_STORAGE', {})
-            html_output += f"<p>Cloud Name: {cloudinary_config.get('CLOUD_NAME', 'Not set')}</p>"
-            html_output += f"<p>API Key: {cloudinary_config.get('API_KEY', 'Not set')}</p>"
-            html_output += f"<p>Secure: {cloudinary_config.get('SECURE', False)}</p>"
-    except Exception as e:
-        html_output += f"<p>❌ Settings error: {str(e)}</p>"
-    
-    # Cloudinary connection test
-    try:
-        import cloudinary
-        import cloudinary.api
-        
-        # Test API connection
-        html_output += f"<h3>🌐 Connection Test:</h3>"
-        
-        # Get account info
-        try:
-            result = cloudinary.api.ping()
-            html_output += f"<p>✅ Cloudinary Ping: {result}</p>"
-            
-            # Get usage info
-            usage = cloudinary.api.usage()
-            html_output += f"<p>📊 Storage used: {usage.get('credits', {}).get('usage', 0)} / {usage.get('credits', {}).get('limit', 0)}</p>"
-            html_output += f"<p>📊 Bandwidth used: {usage.get('bandwidth', {}).get('usage', 0)} / {usage.get('bandwidth', {}).get('limit', 0)}</p>"
-            
-        except Exception as api_e:
-            html_output += f"<p>❌ API connection failed: {str(api_e)}</p>"
-            html_output += f"<p>💡 Bu normal - Cloudinary ayarları henüz yapılmamış olabilir</p>"
-            
-    except ImportError:
-        html_output += f"<p>❌ Cloudinary paketleri yüklenmemiş</p>"
-    except Exception as e:
-        html_output += f"<p>❌ Cloudinary test error: {str(e)}</p>"
-    
-    # Instructions
-    html_output += f"""
-    <h2>🚀 Cloudinary Kurulum Adımları:</h2>
-    <ol>
-        <li><strong>Cloudinary hesabı açın:</strong> <a href="https://cloudinary.com" target="_blank">cloudinary.com</a></li>
-        <li><strong>Dashboard'dan şu bilgileri alın:</strong>
-            <ul>
-                <li>Cloud Name</li>
-                <li>API Key</li>
-                <li>API Secret</li>
-            </ul>
-        </li>
-        <li><strong>Render Environment Variables'a ekleyin:</strong>
-            <ul>
-                <li>CLOUDINARY_CLOUD_NAME</li>
-                <li>CLOUDINARY_API_KEY</li>
-                <li>CLOUDINARY_API_SECRET</li>
-            </ul>
-        </li>
-        <li><strong>Deploy edin</strong></li>
-    </ol>
-    """
-    
-    html_output += """
-    <hr>
-    <p><a href="/test/">🧪 Main Test</a> | <a href="/media-test/">📁 Media Test</a> | <a href="/">🏠 Ana Sayfa</a></p>
+    <p><a href="/test/">🧪 Main Test Page</a> | <a href="/gezi-blog-onerileri/">🗺️ Gezi Blog</a> | <a href="/">🏠 Ana Sayfa</a></p>
     """
     
     return HttpResponse(html_output)

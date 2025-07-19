@@ -183,6 +183,7 @@ class Command(BaseCommand):
         directories = [
             settings.MEDIA_ROOT,
             os.path.join(settings.MEDIA_ROOT, 'dizi_film'),
+            os.path.join(settings.MEDIA_ROOT, 'gezi_blog'),
         ]
         
         for directory in directories:
@@ -199,63 +200,4 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stdout.write(
                     self.style.ERROR(f'❌ Klasör oluşturulamadı {directory}: {str(e)}')
-                )
-                
-        # Media files kopyalama (Render için)
-        self.copy_media_files()
-
-    def copy_media_files(self):
-        """Media files'ı Render production konumuna kopyalar"""
-        import shutil
-        
-        # Source media directory (local)
-        source_media = os.path.join(settings.BASE_DIR, 'media')
-        target_media = settings.MEDIA_ROOT
-        
-        self.stdout.write(f'📂 Source media: {source_media}')
-        self.stdout.write(f'📂 Target media: {target_media}')
-        
-        if os.path.exists(source_media) and source_media != target_media:
-            try:
-                # Dizi film klasörünü kopyala
-                source_dizi = os.path.join(source_media, 'dizi_film')
-                target_dizi = os.path.join(target_media, 'dizi_film')
-                
-                if os.path.exists(source_dizi):
-                    if not os.path.exists(target_dizi):
-                        os.makedirs(target_dizi, exist_ok=True)
-                    
-                    files_copied = 0
-                    for filename in os.listdir(source_dizi):
-                        source_file = os.path.join(source_dizi, filename)
-                        target_file = os.path.join(target_dizi, filename)
-                        
-                        if os.path.isfile(source_file):
-                            if not os.path.exists(target_file):
-                                shutil.copy2(source_file, target_file)
-                                files_copied += 1
-                                self.stdout.write(f'  ✅ {filename} kopyalandı')
-                            else:
-                                self.stdout.write(f'  ⚠️ {filename} zaten mevcut')
-                    
-                    self.stdout.write(
-                        self.style.SUCCESS(f'📁 {files_copied} media dosyası kopyalandı')
-                    )
-                else:
-                    self.stdout.write(
-                        self.style.WARNING(f'⚠️ Source dizi_film klasörü bulunamadı: {source_dizi}')
-                    )
-                    
-            except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR(f'❌ Media files kopyalama hatası: {str(e)}')
-                )
-        else:
-            if not os.path.exists(source_media):
-                self.stdout.write(
-                    self.style.WARNING(f'⚠️ Source media klasörü bulunamadı: {source_media}')
-                )
-            else:
-                self.stdout.write(
-                    self.style.SUCCESS(f'✅ Media klasörleri aynı konumda: {target_media}')
                 ) 

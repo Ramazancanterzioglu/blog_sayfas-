@@ -4,10 +4,10 @@ services:
     env: python
     runtime: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn blog_sayfasi.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn blog_sayfasi.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 60 --max-requests 1000 --max-requests-jitter 100"
     envVars:
       - key: DEBUG
-        value: "true"
+        value: "false"  # Production'da false
       - key: SECRET_KEY
         generateValue: true
       - key: RENDER
@@ -22,13 +22,8 @@ services:
         value: "3.11.6"
       - key: RENDER_EXTERNAL_HOSTNAME
         value: blog-sayfasi.onrender.com
-      # Cloudinary Settings - Bu değerleri Cloudinary dashboard'dan alın
-      - key: CLOUDINARY_CLOUD_NAME
-        value: ""  # Cloudinary dashboard'dan alınacak
-      - key: CLOUDINARY_API_KEY
-        value: ""  # Cloudinary dashboard'dan alınacak
-      - key: CLOUDINARY_API_SECRET
-        value: ""  # Cloudinary dashboard'dan alınacak
+      - key: WEB_CONCURRENCY
+        value: "1"  # Tek worker kullan (memory için)
 
 databases:
   - name: blog-sayfasi-db
