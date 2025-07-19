@@ -30,8 +30,8 @@ except ImportError:
 SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-)vnuui#-84$@z4wbz7v0z#g@y_0lz+af**06m-f_pq$!*zao5&")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Geçici olarak production'da da debug açıyoruz
-DEBUG = True  # os.environ.get('DEBUG', 'False').lower() == 'true'
+# Debug mode - environment variable'dan al
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # Logging configuration for production debugging
 LOGGING = {
@@ -116,9 +116,13 @@ DATABASES = {
     }
 }
 
-# PostgreSQL for production
-if 'DATABASE_URL' in os.environ and dj_database_url:
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
+# PostgreSQL for production (geçici olarak devre dışı)
+# if 'DATABASE_URL' in os.environ and dj_database_url:
+#     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
+
+# Render'da SQLite kullan (geçici)
+if 'RENDER' in os.environ:
+    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
 
 
 # Password validation
@@ -163,17 +167,18 @@ STATICFILES_DIRS = [
 # Static files configuration for production
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# This setting tells Django at which URL static files are going to be served to the user.
-if not DEBUG:
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise storage backend
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Ensure static files are found
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
+
+# Force static files to be served
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

@@ -32,4 +32,21 @@ def ornek_sayfa(request):
 
 # Debug için basit test view
 def test_view(request):
-    return HttpResponse("<h1>Django çalışıyor!</h1><p>Test view başarılı</p>")
+    import django
+    import sys
+    return HttpResponse(f"""
+    <h1>🎉 Django Çalışıyor!</h1>
+    <h2>Sistem Bilgileri:</h2>
+    <ul>
+        <li>Django Version: {django.get_version()}</li>
+        <li>Python Version: {sys.version}</li>
+        <li>Debug Mode: {settings.DEBUG}</li>
+        <li>Allowed Hosts: {settings.ALLOWED_HOSTS}</li>
+    </ul>
+    <h2>Test Linkleri:</h2>
+    <ul>
+        <li><a href="/">Ana Sayfa</a></li>
+        <li><a href="/oran-analizleri/">Oran Analizleri</a></li>
+        <li><a href="/muhasebe-terimleri/">Muhasebe Terimleri</a></li>
+    </ul>
+    """)
