@@ -419,18 +419,24 @@ def test_view(request):
     {auth_test}
     
     <h2>Manual Superuser Creation:</h2>
-    <p><a href="/create-superuser/" style="background: #007cba; color: white; padding: 10px; text-decoration: none;">🔑 Create/Update Superuser</a></p>
+    <p><a href="/create-superuser/" style="background: #007cba; color: white; padding: 10px; text-decoration: none;">🔑 Create/Update Superuser (BACKUP)</a></p>
     
-    <h2>⚠️ NOT: Otomatik Setup Aktif!</h2>
-    <p style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border: 1px solid #c3e6cb;">
-        <strong>🚀 Render'da artık otomatik setup aktif!</strong><br>
-        Build sırasında <code>setup_render</code> command'ı otomatik olarak:<br>
-        ✅ Force migration yapar<br>
-        ✅ Superuser oluşturur<br>
-        ✅ Media klasörleri oluşturur<br>
-        <br>
-        Manuel işleme gerek yok! Direkt admin'e giriş yapabilirsiniz.
-    </p>
+    <h2>⚙️ Migration & Setup Status:</h2>
+    <div style="background: #e7f3ff; color: #004085; padding: 15px; border-radius: 5px; border: 1px solid #b3d7ff; margin: 10px 0;">
+        <h3>🔄 Çift Sistem Aktif:</h3>
+        <p><strong>1. Otomatik Setup:</strong> Build sırasında çalışır (setup_render command)</p>
+        <ul>
+            <li>✅ Otomatik migration</li>
+            <li>✅ Otomatik superuser</li>
+            <li>✅ Media klasörleri</li>
+        </ul>
+        <p><strong>2. Manuel Backup:</strong> Otomatik başarısız olursa</p>
+        <ul>
+            <li>🔧 Manuel migration → <a href="/force-migrate/">Force Migrate</a></li>
+            <li>🔧 Manuel superuser → <a href="/create-superuser/">Create Superuser</a></li>
+        </ul>
+        <p><strong>Önce otomatik denenir, başarısız olursa manuel kullanın!</strong></p>
+    </div>
     
     <h2>Media Files Test:</h2>
     <p><a href="/media-test/" style="background: #28a745; color: white; padding: 10px; text-decoration: none;">📁 Media Files Debug</a></p>
@@ -443,74 +449,140 @@ def test_view(request):
         <li><a href="/dizi-film-onerileri/">Dizi/Film Önerileri</a></li>
         <li><a href="/gezi-blog-onerileri/">Gezi Blog Önerileri</a></li>
         <li><a href="/admin/">Admin Panel</a></li>
-        <li><a href="/force-migrate/">🚨 Force Migrate (ARTIK GEREKSİZ)</a></li>
+        <li><a href="/force-migrate/">🚨 Force Migrate (BACKUP)</a></li>
     </ul>
     """)
 
 def force_migrate(request):
-    """DEPRECATED: Artık otomatik setup var"""
+    """Manuel migration - Backup çözüm"""
+    from django.core.management import call_command
+    from io import StringIO
+    import sys
     
     html_output = f"""
-    <h1>🚨 Force Migration - ARTIK GEREKSİZ!</h1>
+    <h1>🚨 Force Migration - Manuel Backup</h1>
     
     <div style="background: #fff3cd; color: #856404; padding: 20px; border-radius: 10px; border: 1px solid #ffeaa7; margin: 20px 0;">
-        <h2>⚠️ Bu Sayfa Artık Gerekli Değil!</h2>
-        <p><strong>Render'da otomatik setup aktif!</strong></p>
-        <p>Build sırasında <code>setup_render</code> command'ı otomatik olarak:</p>
-        <ul>
-            <li>✅ Force migration yapar</li>
-            <li>✅ Superuser oluşturur</li>
-            <li>✅ Media klasörleri oluşturur</li>
-            <li>✅ Her şeyi test eder</li>
-        </ul>
-        <p><strong>Manuel işlem gerekmiyor!</strong></p>
+        <h2>⚠️ Migration Backup Tool</h2>
+        <p><strong>Otomatik migration çalışmadıysa bu sayfayı kullanın!</strong></p>
+        <p>Bu sayfa migration'ları zorla çalıştırır ve database'i düzeltir.</p>
     </div>
-    
-    <h2>🔄 Test Etmek İçin (Local):</h2>
-    <p>Eğer local'de test etmek istiyorsanız:</p>
-    <code style="background: #f8f9fa; padding: 10px; display: block; margin: 10px 0;">
-        python manage.py setup_render
-    </code>
-    
-    <h2>📊 Mevcut Durum:</h2>
     """
     
+    # Migration işlemi başlat
+    if request.method == 'GET' and 'run' in request.GET:
+        html_output += "<h2>🔄 Migration İşlemi Başlatılıyor...</h2>"
+        html_output += "<pre style='background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;'>"
+        
+        output = StringIO()
+        
+        try:
+            # Capture output
+            old_stdout = sys.stdout
+            sys.stdout = output
+            
+            # 1. Makemigrations
+            print("=== 1. MAKEMIGRATIONS ===")
+            try:
+                call_command('makemigrations', '--noinput', verbosity=2)
+                print("✅ Makemigrations başarılı")
+            except Exception as e:
+                print(f"⚠️ Makemigrations hatası: {str(e)}")
+            
+            # 2. Normal migrate
+            print("\n=== 2. NORMAL MIGRATE ===")
+            try:
+                call_command('migrate', '--noinput', verbosity=2)
+                print("✅ Normal migrate başarılı")
+            except Exception as e:
+                print(f"⚠️ Normal migrate hatası: {str(e)}")
+            
+            # 3. Syncdb migrate
+            print("\n=== 3. SYNCDB MIGRATE ===")
+            try:
+                call_command('migrate', '--run-syncdb', '--noinput', verbosity=2)
+                print("✅ Syncdb migrate başarılı")
+            except Exception as e:
+                print(f"⚠️ Syncdb migrate hatası: {str(e)}")
+            
+            # 4. Final migrate
+            print("\n=== 4. FINAL MIGRATE ===")
+            try:
+                call_command('migrate', '--noinput', verbosity=2)
+                print("✅ Final migrate başarılı")
+            except Exception as e:
+                print(f"⚠️ Final migrate hatası: {str(e)}")
+            
+            # Restore stdout
+            sys.stdout = old_stdout
+            
+            migration_output = output.getvalue()
+            html_output += migration_output
+            html_output += "</pre><h3>✅ Migration İşlemi Tamamlandı!</h3>"
+            
+        except Exception as e:
+            sys.stdout = old_stdout
+            html_output += f"</pre><h3>❌ Migration Genel Hatası:</h3><p>{str(e)}</p>"
+    
+    # Database durumu test
     try:
-        from django.contrib.auth.models import User
-        total_users = User.objects.count()
-        superusers = User.objects.filter(is_superuser=True).count()
+        from django.db import connection
+        cursor = connection.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = [row[0] for row in cursor.fetchall()]
         
-        from .models import DiziFilm, GeziBlog
-        dizi_count = DiziFilm.objects.count()
-        gezi_count = GeziBlog.objects.count()
+        html_output += f"<h3>📊 Database Tabloları ({len(tables)}):</h3><ul>"
+        for table in tables:
+            html_output += f"<li>{table}</li>"
+        html_output += "</ul>"
         
-        html_output += f"""
-        <ul>
-            <li>👤 Total users: {total_users}</li>
-            <li>👑 Superusers: {superusers}</li>
-            <li>🎬 DiziFilm records: {dizi_count}</li>
-            <li>🗺️ GeziBlog records: {gezi_count}</li>
-            <li>📁 Media root: {settings.MEDIA_ROOT}</li>
-        </ul>
-        """
+        # Critical tables check
+        critical_tables = ['auth_user', 'anasayfa_dizifilm', 'anasayfa_geziblog']
+        html_output += "<h3>🔍 Kritik Tablolar:</h3><ul>"
+        for table in critical_tables:
+            if table in tables:
+                html_output += f"<li style='color: green;'>✅ {table}</li>"
+            else:
+                html_output += f"<li style='color: red;'>❌ {table} EKSİK</li>"
+        html_output += "</ul>"
         
-        if superusers > 0:
-            html_output += "<p style='color: green;'>✅ Superuser mevcut - Admin panele giriş yapabilirsiniz!</p>"
-        else:
-            html_output += "<p style='color: red;'>❌ Superuser yok - Otomatik setup çalışmamış olabilir</p>"
+        # User test
+        try:
+            from django.contrib.auth.models import User
+            user_count = User.objects.count()
+            superuser_count = User.objects.filter(is_superuser=True).count()
+            html_output += f"<h3>👤 Kullanıcılar: {user_count} total, {superuser_count} superuser</h3>"
+        except Exception as e:
+            html_output += f"<h3>❌ User test hatası: {str(e)}</h3>"
             
     except Exception as e:
-        html_output += f"<p style='color: red;'>❌ Database hatası: {str(e)}</p>"
+        html_output += f"<h3>❌ Database test hatası: {str(e)}</h3>"
+    
+    # Action buttons
+    html_output += f"""
+    <h2>🎯 Actions:</h2>
+    <div style="margin: 20px 0;">
+        <a href="/force-migrate/?run=1" style="background: #dc3545; color: white; padding: 15px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+            🚨 RUN FORCE MIGRATION
+        </a>
+        <a href="/create-superuser/" style="background: #007bff; color: white; padding: 15px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+            👑 Create Superuser
+        </a>
+        <a href="/admin/" style="background: #28a745; color: white; padding: 15px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+            🔗 Admin Panel
+        </a>
+    </div>
+    """
     
     html_output += """
     <hr>
-    <p><a href="/test/">🧪 Test Page</a> | <a href="/admin/">👑 Admin Panel</a> | <a href="/">🏠 Ana Sayfa</a></p>
+    <p><a href="/test/">🧪 Test Page</a> | <a href="/">🏠 Ana Sayfa</a></p>
     """
     
     return HttpResponse(html_output)
 
 def create_superuser_view(request):
-    """DEPRECATED: Manuel superuser oluşturma view'ı - Artık otomatik"""
+    """Manuel superuser oluşturma view'ı - Backup çözüm"""
     from django.contrib.auth.models import User
     from django.contrib.auth import authenticate
     import os
@@ -521,21 +593,55 @@ def create_superuser_view(request):
     password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '12345678Ramazan')
     
     html_output = f"""
-    <h1>🔑 Manuel Superuser Oluşturma - ARTIK GEREKSİZ!</h1>
+    <h1>🔑 Manuel Superuser Oluşturma</h1>
     
     <div style="background: #d1ecf1; color: #0c5460; padding: 20px; border-radius: 10px; border: 1px solid #bee5eb; margin: 20px 0;">
-        <h2>🚀 Otomatik Setup Aktif!</h2>
-        <p><strong>Artık manuel superuser oluşturmanıza gerek yok!</strong></p>
-        <p>Render'da her deploy'da otomatik olarak:</p>
-        <ul>
-            <li>✅ Migration yapılır</li>
-            <li>✅ Superuser oluşturulur</li>
-            <li>✅ Eski kullanıcı varsa silinip yeni oluşturulur</li>
-            <li>✅ Authentication test edilir</li>
-        </ul>
-        <p><strong>Direkt admin panele giriş yapabilirsiniz!</strong></p>
+        <h2>🛠️ Manuel Backup Tool</h2>
+        <p><strong>Otomatik superuser oluşturma çalışmadıysa bu sayfayı kullanın!</strong></p>
+        <p>Bu sayfa güvenli bir şekilde superuser oluşturur veya günceller.</p>
     </div>
     """
+    
+    # Superuser oluşturma işlemi
+    if request.method == 'GET' and 'create' in request.GET:
+        html_output += "<h2>🔄 Superuser İşlemi Başlatılıyor...</h2>"
+        
+        try:
+            # Mevcut kullanıcıyı kontrol et
+            existing_user = None
+            if User.objects.filter(username=username).exists():
+                existing_user = User.objects.get(username=username)
+                html_output += f"<p>⚠️ Mevcut kullanıcı bulundu: {username}</p>"
+                
+                # Kullanıcıyı güncelle
+                existing_user.set_password(password)
+                existing_user.is_superuser = True
+                existing_user.is_staff = True
+                existing_user.is_active = True
+                existing_user.email = email
+                existing_user.save()
+                
+                html_output += f"<p style='color: green;'>✅ Kullanıcı güncellendi: {username}</p>"
+            else:
+                # Yeni kullanıcı oluştur
+                user = User.objects.create_superuser(
+                    username=username,
+                    email=email,
+                    password=password
+                )
+                html_output += f"<p style='color: green;'>🎉 Yeni superuser oluşturuldu: {username}</p>"
+            
+            # Authentication test
+            auth_user = authenticate(username=username, password=password)
+            if auth_user:
+                html_output += f"<p style='color: green;'>✅ Authentication test başarılı!</p>"
+            else:
+                html_output += f"<p style='color: red;'>❌ Authentication test başarısız!</p>"
+                
+        except Exception as e:
+            import traceback
+            html_output += f"<div style='color: red;'><h3>❌ Superuser oluşturma hatası:</h3><p>{str(e)}</p></div>"
+            html_output += f"<pre>{traceback.format_exc()}</pre>"
     
     try:
         # Mevcut kullanıcıları listele
@@ -546,7 +652,7 @@ def create_superuser_view(request):
         html_output += f"</ul><p>Toplam: {users.count()} kullanıcı</p>"
         
         # Current superuser info
-        html_output += f"<h2>🔑 Aktif Login Bilgileri:</h2>"
+        html_output += f"<h2>🔑 Hedef Login Bilgileri:</h2>"
         html_output += f"<div style='background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;'>"
         html_output += f"<p><strong>Username:</strong> {username}</p>"
         html_output += f"<p><strong>Email:</strong> {email}</p>"
@@ -562,24 +668,32 @@ def create_superuser_view(request):
             if auth_user:
                 html_output += f"<p style='color: green;'>✅ Authentication başarılı! Admin panele giriş yapabilirsiniz.</p>"
             else:
-                html_output += f"<p style='color: orange;'>⚠️ User mevcut ama authentication başarısız. Deploy sonrası düzelecek.</p>"
+                html_output += f"<p style='color: orange;'>⚠️ User mevcut ama authentication başarısız. Şifre güncelleme gerekli.</p>"
                 
             html_output += f"<p>User bilgileri: Staff={user.is_staff}, Super={user.is_superuser}, Active={user.is_active}</p>"
         else:
-            html_output += f"<p style='color: red;'>❌ User henüz yok. Deploy sonrası otomatik oluşturulacak.</p>"
-        
-        # Admin link
-        html_output += f"""
-        <h2>🎯 Admin Panel:</h2>
-        <p><a href="/admin/" target="_blank" style="background: #417690; color: white; padding: 15px; text-decoration: none; font-size: 18px; border-radius: 5px;">
-            🔗 Admin Panel'e Git
-        </a></p>
-        """
+            html_output += f"<p style='color: red;'>❌ User henüz yok. Oluşturma gerekli.</p>"
         
     except Exception as e:
         import traceback
-        html_output += f"<h3>❌ Hata:</h3><p>{str(e)}</p>"
+        html_output += f"<h3>❌ Database hatası:</h3><p>{str(e)}</p>"
         html_output += f"<pre>{traceback.format_exc()}</pre>"
+    
+    # Action buttons
+    html_output += f"""
+    <h2>🎯 Actions:</h2>
+    <div style="margin: 20px 0;">
+        <a href="/create-superuser/?create=1" style="background: #dc3545; color: white; padding: 15px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+            🔑 CREATE/UPDATE SUPERUSER
+        </a>
+        <a href="/force-migrate/" style="background: #6c757d; color: white; padding: 15px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+            🚨 Force Migration
+        </a>
+        <a href="/admin/" style="background: #28a745; color: white; padding: 15px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+            🔗 Admin Panel
+        </a>
+    </div>
+    """
     
     html_output += """
     <hr>

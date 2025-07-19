@@ -43,21 +43,44 @@ class Command(BaseCommand):
         )
         
         try:
-            # Run syncdb first
+            # 1. Check database connection first
+            self.stdout.write('📋 Testing database connection...')
+            from django.db import connection
+            cursor = connection.cursor()
+            cursor.execute("SELECT 1")
+            self.stdout.write('✅ Database connection OK')
+            
+            # 2. Create migration files if needed
+            self.stdout.write('📋 Creating migrations...')
+            try:
+                call_command('makemigrations', '--noinput', verbosity=1)
+                self.stdout.write('✅ Makemigrations completed')
+            except Exception as e:
+                self.stdout.write(f'⚠️ Makemigrations warning: {str(e)}')
+            
+            # 3. Run syncdb first (create basic tables)
             self.stdout.write('📋 Running migrate --run-syncdb...')
-            call_command('migrate', '--run-syncdb', verbosity=1)
+            try:
+                call_command('migrate', '--run-syncdb', '--noinput', verbosity=1)
+                self.stdout.write('✅ Syncdb completed')
+            except Exception as e:
+                self.stdout.write(f'⚠️ Syncdb warning: {str(e)}')
             
-            # Run normal migrations
+            # 4. Run normal migrations
             self.stdout.write('📋 Running normal migrations...')
-            call_command('migrate', verbosity=1)
+            try:
+                call_command('migrate', '--noinput', verbosity=1)
+                self.stdout.write('✅ Normal migrations completed')
+            except Exception as e:
+                self.stdout.write(f'⚠️ Normal migration warning: {str(e)}')
             
-            # Make sure all apps are migrated
-            self.stdout.write('📋 Running makemigrations...')
-            call_command('makemigrations', verbosity=1)
-            
-            # Final migrate
-            self.stdout.write('📋 Final migration...')
-            call_command('migrate', verbosity=1)
+            # 5. Final migration attempt (cleanup)
+            self.stdout.write('📋 Final migration cleanup...')
+            try:
+                call_command('migrate', '--noinput', verbosity=1)
+                self.stdout.write('✅ Final migration completed')
+            except Exception as e:
+                self.stdout.write(f'⚠️ Final migration warning: {str(e)}')
             
             self.stdout.write(
                 self.style.SUCCESS('✅ Force migration tamamlandı!')
@@ -65,10 +88,12 @@ class Command(BaseCommand):
             
         except Exception as e:
             self.stdout.write(
-                self.style.ERROR(f'❌ Migration hatası: {str(e)}')
+                self.style.ERROR(f'❌ Migration kritik hatası: {str(e)}')
             )
-            # Continue anyway
-            
+            self.stdout.write(
+                self.style.WARNING('⚠️ Devam ediliyor... Manuel migration gerekebilir.')
+            )
+
     def check_database(self):
         """Database bağlantısını ve tabloları kontrol eder"""
         try:
